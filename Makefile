@@ -3,3 +3,6 @@ CC = g++
 
 serial: serial.cpp
 	$(CC) $(CFLAGS) -o $@ $<
+
+serial2: serial2.cpp
+	$(CC) $(CFLAGS) -o $@ $<
