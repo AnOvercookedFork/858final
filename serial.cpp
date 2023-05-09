@@ -6,6 +6,9 @@
 typedef struct TreeNode {
     int data;
     TreeNode* parent;
+    int depth = 0;
+    int heavy = 0;
+    int size = 1;
     std::vector<TreeNode*> children;
 } TreeNode;
 
@@ -52,7 +55,7 @@ TreeNode* generateRandomTree(int n) {
 }
 
 void printTree(const TreeNode& tree) {
-    std::cout << tree.data << ": ";
+    std::cout << "data: " << tree.data << ", size: " << tree.size << ", heavy: " << tree.heavy << " children: ";
     for (const TreeNode* child : tree.children) {
         std::cout << child->data << " ";
     }
@@ -70,15 +73,42 @@ TreeNode* findRoot(TreeNode* tree) {
     return tree;
 }
 
+void markHeavy(TreeNode& tree, int depth) {
+    tree.depth = depth;
+
+    int size = 1;
+    for (TreeNode* child : tree.children) {
+        markHeavy(*child, depth + 1);
+        size += child->size;
+    }
+    tree.size = size;
+    
+    for (TreeNode* child : tree.children) {
+        if (child->size * 2 > tree.size) {
+            child->heavy = 1;
+        }
+    }
+}
+
 int main(int argc, char* argv[]) {
-    int n = 100; // Desired number of nodes in the tree
+    clock_t start = clock();
+
+    int n = 20; // Desired number of nodes in the tree
     TreeNode* tree = generateRandomTree(n);
 
-    printTree(*tree);
-    std::cout << std::endl;
-    printTree(*findRoot(tree));
+    // printTree(*tree);
+    // std::cout << std::endl;
+    TreeNode* root = findRoot(tree);
+
+    clock_t end = clock();
+    std::cout << ((double) (end - start)) / CLOCKS_PER_SEC << " seconds " << "for initialization for " << n << " nodes" << std::endl;
+    markHeavy(*root, 0);
+    printTree(*root);
     // Use the tree for testing your algorithm
     // ...
+
+    end = clock();
+    std::cout << ((double) (end - start)) / CLOCKS_PER_SEC << " seconds " << "for " << n << " nodes" << std::endl;
 
     delete[] tree;
     return 0;
