@@ -86,10 +86,20 @@ void markHeavy(TreeNode& tree, int depth) {
     }
     
     // second iteration: calculate heaviness
+    TreeNode* heaviest = nullptr;
+    int heaviestWeight = 0;
     for (TreeNode* child : tree.children) {
-        if (child->size * 2 > tree.size) {
-            child->heavy = 1;
+        // if (child->size * 2 > tree.size) {
+        //     child->heavy = 1;
+        // }
+        if (child->size > heaviestWeight) {
+            heaviest = child;
+            heaviestWeight = child->size;
         }
+    }
+
+    if (heaviest) {
+        heaviest->heavy = 1;
     }
 }
 
