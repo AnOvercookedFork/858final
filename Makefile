@@ -1,5 +1,5 @@
-CFLAGS = -O2
-CC = gcc
+CFLAGS = -fopenmp -O2 
+CC = g++
 
 serial: serial.cpp
 	$(CC) $(CFLAGS) -o $@ $<
