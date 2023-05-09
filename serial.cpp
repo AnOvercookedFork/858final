@@ -66,6 +66,7 @@ void printTree(const TreeNode& tree) {
     }
 }
 
+// walks up tree to find the root
 TreeNode* findRoot(TreeNode* tree) {
     while(tree->parent) {
         tree = tree->parent;
@@ -73,16 +74,18 @@ TreeNode* findRoot(TreeNode* tree) {
     return tree;
 }
 
+// iterate through tree and update depth, size, and heaviness
+// works because size is initialized to 1
 void markHeavy(TreeNode& tree, int depth) {
     tree.depth = depth;
 
-    int size = 1;
+    // first iteration: calculate sizes and depths
     for (TreeNode* child : tree.children) {
         markHeavy(*child, depth + 1);
-        size += child->size;
+        tree.size += child->size;
     }
-    tree.size = size;
     
+    // second iteration: calculate heaviness
     for (TreeNode* child : tree.children) {
         if (child->size * 2 > tree.size) {
             child->heavy = 1;
@@ -104,8 +107,6 @@ int main(int argc, char* argv[]) {
     std::cout << ((double) (end - start)) / CLOCKS_PER_SEC << " seconds " << "for initialization for " << n << " nodes" << std::endl;
     markHeavy(*root, 0);
     printTree(*root);
-    // Use the tree for testing your algorithm
-    // ...
 
     end = clock();
     std::cout << ((double) (end - start)) / CLOCKS_PER_SEC << " seconds " << "for " << n << " nodes" << std::endl;
