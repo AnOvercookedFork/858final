@@ -144,15 +144,16 @@ void markHeavy(TreeNode& tree, int depth) {
 }
 
 int curPos = 0;
-void decompose(TreeNode* v, TreeNode* h, std::vector<int> &values) {
+void decompose(TreeNode* v, TreeNode* h, std::vector<int>& values, std::vector<int>& order) {
     v->head = h->idx;
     v->pos = curPos++;
     values.push_back(v->data);
+    order.push_back(v->idx);
     if (v->heavy)
-        decompose(v->heavy, h, values);
+        decompose(v->heavy, h, values, order);
     for (TreeNode* c : v->children) {
         if (c != v->heavy)
-            decompose(c, c, values);
+            decompose(c, c, values, order);
     }
 }
 
@@ -170,12 +171,18 @@ int main(int argc, char* argv[]) {
     std::cout << ((double) (end - start)) / CLOCKS_PER_SEC << " seconds " << "for initialization for " << n << " nodes" << std::endl;
     markHeavy(*root, 0);
     std::vector<int> hldValues;
-    decompose(root, root, hldValues);
+    std::vector<int> order;
+    decompose(root, root, hldValues, order);
     printTree(*root);
 
     SegmentTree st = SegmentTree(n);
     st.build(hldValues, 0, 0, n-1);
-    std::cout << st.query(0, 0, n-1, 0, n-1) << std::endl;
+    std::cout << st.query(0, 0, n-1, 2, 20) << std::endl;
+
+    for (int i = 0; i < n; i++) {
+        std::cout << order[i] << " ";
+    }
+    std::cout << std::endl << nodes[6].data << " " << nodes[7].data << std::endl;
 
     end = clock();
     std::cout << ((double) (end - start)) / CLOCKS_PER_SEC << " seconds " << "for " << n << " nodes" << std::endl;
