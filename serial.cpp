@@ -15,6 +15,53 @@ typedef struct TreeNode {
     std::vector<TreeNode*> children;
 } TreeNode;
 
+typedef struct SegmentTree {
+    std::vector<int> tree;
+    int size;
+
+    SegmentTree(int n) {
+        size = n;
+        tree.assign(4 * n, 0);
+    }
+
+    void build(const std::vector<int> &values, int idx, int left, int right) {
+        if (left == right) {
+            tree[idx] = values[left];
+        } else {
+            int mid = (left + right) / 2;
+            build(values, idx * 2 + 1, left, mid);
+            build(values, idx * 2 + 2, mid + 1, right);
+            tree[idx] = tree[idx * 2 + 1] + tree[idx * 2 + 2];
+        }
+    }
+
+    int query(int idx, int left, int right, int query_left, int query_right) {
+        if (query_left <= left && right <= query_right) {
+            return tree[idx];
+        }
+        if (query_right < left || right < query_left) {
+            return 0;
+        }
+        int mid = (left + right) / 2;
+        return query(idx * 2 + 1, left, mid, query_left, query_right) +
+               query(idx * 2 + 2, mid + 1, right, query_left, query_right);
+    }
+
+    void update(int idx, int left, int right, int pos, int new_value) {
+        if (left == right) {
+            tree[idx] = new_value;
+        } else {
+            int mid = (left + right) / 2;
+            if (pos <= mid) {
+                update(idx * 2 + 1, left, mid, pos, new_value);
+            } else {
+                update(idx * 2 + 2, mid + 1, right, pos, new_value);
+            }
+            tree[idx] = tree[idx * 2 + 1] + tree[idx * 2 + 2];
+        }
+    }
+} SegmentTree;
+
 void swap(int &a, int &b) {
     int temp = a;
     a = b;
@@ -96,27 +143,16 @@ void markHeavy(TreeNode& tree, int depth) {
     }
 }
 
-
-// int curPos = 0;
-// void decompose(int v, int h, TreeNode* nodes) {
-//     nodes[v].head = h;
-//     nodes[v].pos = curPos++;
-//     if (nodes[v].heavy)
-//         decompose(nodes[v].heavy->idx, h, nodes);
-//     for (TreeNode* c : nodes[v].children) {
-//         if (c != nodes[v].heavy)
-//             decompose(c->idx, c->idx, nodes);
-//     }
-// }
 int curPos = 0;
-void decompose(TreeNode* v, TreeNode* h) {
+void decompose(TreeNode* v, TreeNode* h, std::vector<int> &values) {
     v->head = h->idx;
     v->pos = curPos++;
+    values.push_back(v->data);
     if (v->heavy)
-        decompose(v->heavy, h);
+        decompose(v->heavy, h, values);
     for (TreeNode* c : v->children) {
         if (c != v->heavy)
-            decompose(c, c);
+            decompose(c, c, values);
     }
 }
 
@@ -133,8 +169,13 @@ int main(int argc, char* argv[]) {
     clock_t end = clock();
     std::cout << ((double) (end - start)) / CLOCKS_PER_SEC << " seconds " << "for initialization for " << n << " nodes" << std::endl;
     markHeavy(*root, 0);
-    decompose(root, root);
+    std::vector<int> hldValues;
+    decompose(root, root, hldValues);
     printTree(*root);
+
+    SegmentTree st = SegmentTree(n);
+    st.build(hldValues, 0, 0, n-1);
+    std::cout << st.query(0, 0, n-1, 0, n-1) << std::endl;
 
     end = clock();
     std::cout << ((double) (end - start)) / CLOCKS_PER_SEC << " seconds " << "for " << n << " nodes" << std::endl;
