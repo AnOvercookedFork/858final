@@ -106,10 +106,10 @@ TreeNode* generateRandomTree(int n) {
 }
 
 void printTree(const TreeNode& tree) {
-    std::cout << "data: " << tree.data << ", size: " << tree.size << ", heavy: " << (tree.heavy ? tree.heavy->data : -1);
+    std::cout << "idx: " << tree.idx << " data: " << tree.data << ", size: " << tree.size << ", heavy: " << (tree.heavy ? tree.heavy->data : -1);
     std::cout << " heavy head: " << tree.head << " st pos " << tree.pos << " children: ";
     for (const TreeNode* child : tree.children) {
-        std::cout << child->data << " ";
+        std::cout << child->idx << " ";
     }
     std::cout << std::endl;
 
