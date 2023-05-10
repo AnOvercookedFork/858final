@@ -6,3 +6,6 @@ serial: serial.cpp
 
 serial2: serial2.cpp
 	$(CC) $(CFLAGS) -o $@ $<
+
+serial3: serial3.cpp
+	$(CC) $(CFLAGS) -o $@ $<

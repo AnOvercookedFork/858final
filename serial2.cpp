@@ -7,7 +7,7 @@
 using namespace std;
 
 vector<vector<int>> adj;
-vector<int> parent, depth, heavy, head, pos, size;
+vector<int> parent, depth, heavy, head, pos;//, sizes;
 int cur_pos;
 
 void addEdge(int parentIdx, int childIdx) {
@@ -43,13 +43,29 @@ int dfs(int v, vector<vector<int>> const& adj) {
 }
 
 void decompose(int v, int h, vector<vector<int>> const& adj) {
-    head[v] = h, pos[v] = cur_pos++;
+    head[v] = h;
+    pos[v] = cur_pos++;
     if (heavy[v] != -1)
         decompose(heavy[v], h, adj);
     for (int c : adj[v]) {
         if (c != parent[v] && c != heavy[v])
             decompose(c, c, adj);
     }
+}
+
+int query(int a, int b) {
+    int res = 0;
+    for (; head[a] != head[b]; b = parent[head[b]]) {
+        if (depth[head[a]] > depth[head[b]])
+            swap(a, b);
+        int cur_heavy_path_max = segment_tree_query(pos[head[b]], pos[b]);
+        res = max(res, cur_heavy_path_max);
+    }
+    if (depth[a] > depth[b])
+        swap(a, b);
+    int last_heavy_path_max = segment_tree_query(pos[a], pos[b]);
+    res = max(res, last_heavy_path_max);
+    return res;
 }
 
 int main(int argc, char* argv[]) {
@@ -62,6 +78,7 @@ int main(int argc, char* argv[]) {
     heavy = vector<int>(n, -1);
     head = vector<int>(n);
     pos = vector<int>(n);
+    // sizes = vector<int>(n);
     generateRandomTree(n);
 
 
@@ -71,6 +88,7 @@ int main(int argc, char* argv[]) {
 
     dfs(0, adj);
     decompose(0, 0, adj);
+    cout << query(10, 20) << endl;
 
     end = clock();
     cout << ((double) (end - start)) / CLOCKS_PER_SEC << " seconds " << "for " << n << " nodes" << endl;

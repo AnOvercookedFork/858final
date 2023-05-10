@@ -4,10 +4,11 @@
 #include <cstdlib>
 #include <algorithm>
 typedef struct TreeNode {
+    int idx;
     int data;
     TreeNode* parent;
     int depth = 0;
-    int heavy = 0;
+    TreeNode* heavy;
     int size = 1;
     std::vector<TreeNode*> children;
 } TreeNode;
@@ -43,6 +44,7 @@ TreeNode* generateRandomTree(int n) {
 
     TreeNode* nodes = new TreeNode[n];
     for (int i = 0; i < n; i++) {
+        nodes[i].idx = i;
         nodes[i].data = node_indices[i];
     }
 
@@ -55,7 +57,7 @@ TreeNode* generateRandomTree(int n) {
 }
 
 void printTree(const TreeNode& tree) {
-    std::cout << "data: " << tree.data << ", size: " << tree.size << ", heavy: " << tree.heavy << " children: ";
+    std::cout << "data: " << tree.data << ", size: " << tree.size << ", heavy: " << (tree.heavy ? tree.heavy->data : -1) << " children: ";
     for (const TreeNode* child : tree.children) {
         std::cout << child->data << " ";
     }
@@ -80,38 +82,48 @@ void markHeavy(TreeNode& tree, int depth) {
     tree.depth = depth;
 
     // first iteration: calculate sizes and depths
-    for (TreeNode* child : tree.children) {
-        markHeavy(*child, depth + 1);
-        tree.size += child->size;
-    }
-    
-    // second iteration: calculate heaviness
     TreeNode* heaviest = nullptr;
     int heaviestWeight = 0;
     for (TreeNode* child : tree.children) {
-        // if (child->size * 2 > tree.size) {
-        //     child->heavy = 1;
-        // }
+        markHeavy(*child, depth + 1);
+        tree.size += child->size;
         if (child->size > heaviestWeight) {
             heaviest = child;
             heaviestWeight = child->size;
         }
     }
-
-    if (heaviest) {
-        heaviest->heavy = 1;
-    }
+    
+    tree.heavy = heaviest;
 }
+
+// void fastDFS(int v, vector<vector<int>> const& adj) {
+//     sizes[v] = 1;
+//     // first iteration: calculate sizes and depths
+//     int heaviest = 0; // 0 will never be a child
+//     int heaviestWeight = 0;
+//     for (int i : adj[v]) {
+//         fastDFS(i, adj);
+//         sizes[v] += sizes[i];
+//         if (sizes[i] > heaviestWeight) {
+//             heaviest = i;
+//             heaviestWeight = sizes[i];
+//         }
+//     }
+
+//     if (heaviest) {
+//         heavy[v] = heaviest;
+//     }
+// }
 
 int main(int argc, char* argv[]) {
     clock_t start = clock();
 
     int n = 20; // Desired number of nodes in the tree
-    TreeNode* tree = generateRandomTree(n);
+    TreeNode* nodes = generateRandomTree(n);
 
     // printTree(*tree);
     // std::cout << std::endl;
-    TreeNode* root = findRoot(tree);
+    TreeNode* root = findRoot(nodes);
 
     clock_t end = clock();
     std::cout << ((double) (end - start)) / CLOCKS_PER_SEC << " seconds " << "for initialization for " << n << " nodes" << std::endl;
@@ -121,6 +133,6 @@ int main(int argc, char* argv[]) {
     end = clock();
     std::cout << ((double) (end - start)) / CLOCKS_PER_SEC << " seconds " << "for " << n << " nodes" << std::endl;
 
-    delete[] tree;
+    delete[] nodes;
     return 0;
 }
