@@ -1,4 +1,4 @@
-CFLAGS = -fopenmp -O2 
+CFLAGS = -fopenmp -O2 -g
 CC = g++
 
 serial: serial.cpp

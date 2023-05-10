@@ -6,6 +6,8 @@
 typedef struct TreeNode {
     int idx;
     int data;
+    int head;
+    int pos;
     TreeNode* parent;
     int depth = 0;
     TreeNode* heavy;
@@ -57,7 +59,8 @@ TreeNode* generateRandomTree(int n) {
 }
 
 void printTree(const TreeNode& tree) {
-    std::cout << "data: " << tree.data << ", size: " << tree.size << ", heavy: " << (tree.heavy ? tree.heavy->data : -1) << " children: ";
+    std::cout << "data: " << tree.data << ", size: " << tree.size << ", heavy: " << (tree.heavy ? tree.heavy->data : -1);
+    std::cout << " heavy head: " << tree.head << " st pos " << tree.pos << " children: ";
     for (const TreeNode* child : tree.children) {
         std::cout << child->data << " ";
     }
@@ -82,38 +85,40 @@ void markHeavy(TreeNode& tree, int depth) {
     tree.depth = depth;
 
     // first iteration: calculate sizes and depths
-    TreeNode* heaviest = nullptr;
     int heaviestWeight = 0;
     for (TreeNode* child : tree.children) {
         markHeavy(*child, depth + 1);
         tree.size += child->size;
         if (child->size > heaviestWeight) {
-            heaviest = child;
+            tree.heavy = child;
             heaviestWeight = child->size;
         }
     }
-    
-    tree.heavy = heaviest;
 }
 
-// void fastDFS(int v, vector<vector<int>> const& adj) {
-//     sizes[v] = 1;
-//     // first iteration: calculate sizes and depths
-//     int heaviest = 0; // 0 will never be a child
-//     int heaviestWeight = 0;
-//     for (int i : adj[v]) {
-//         fastDFS(i, adj);
-//         sizes[v] += sizes[i];
-//         if (sizes[i] > heaviestWeight) {
-//             heaviest = i;
-//             heaviestWeight = sizes[i];
-//         }
-//     }
 
-//     if (heaviest) {
-//         heavy[v] = heaviest;
+// int curPos = 0;
+// void decompose(int v, int h, TreeNode* nodes) {
+//     nodes[v].head = h;
+//     nodes[v].pos = curPos++;
+//     if (nodes[v].heavy)
+//         decompose(nodes[v].heavy->idx, h, nodes);
+//     for (TreeNode* c : nodes[v].children) {
+//         if (c != nodes[v].heavy)
+//             decompose(c->idx, c->idx, nodes);
 //     }
 // }
+int curPos = 0;
+void decompose(TreeNode* v, TreeNode* h) {
+    v->head = h->idx;
+    v->pos = curPos++;
+    if (v->heavy)
+        decompose(v->heavy, h);
+    for (TreeNode* c : v->children) {
+        if (c != v->heavy)
+            decompose(c, c);
+    }
+}
 
 int main(int argc, char* argv[]) {
     clock_t start = clock();
@@ -128,6 +133,7 @@ int main(int argc, char* argv[]) {
     clock_t end = clock();
     std::cout << ((double) (end - start)) / CLOCKS_PER_SEC << " seconds " << "for initialization for " << n << " nodes" << std::endl;
     markHeavy(*root, 0);
+    decompose(root, root);
     printTree(*root);
 
     end = clock();
