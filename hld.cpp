@@ -16,14 +16,14 @@ vector<int> head(N);            // stores the head of the chain to which node u 
 vector<int> pos(N);             // stores the position of node u in the segment tree array
 vector<int> parent(N);          // stores the parent of node u
 vector<int> depth(N);           // stores the depth of node u
-vector<int> size(N);            // stores the subtree size of u
+vector<int> sizes(N);            // stores the subtree size of u
 
 int cur_pos;                    // used to assign positions to nodes in the segment tree array
 
 // Computes parent, depth, subtree size, and heavy child of each node using DFS
 void dfs(int v)
 {
-    size[v] = 1;
+    sizes[v] = 1;
     for (int u : adj[v])
     {
         if (u != parent[v])
@@ -31,8 +31,8 @@ void dfs(int v)
             parent[u] = v;
             depth[u] = depth[v] + 1;
             dfs(u);
-            size[v] += size[u];
-            if (heavy[v] == -1 || size[u] > size[heavy[v]])
+            sizes[v] += sizes[u];
+            if (heavy[v] == -1 || sizes[u] > sizes[heavy[v]])
             {
                 heavy[v] = u;
             }

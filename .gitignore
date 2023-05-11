@@ -1,1 +1,4 @@
 serial
+ignore
+.vscode
+hld
