@@ -9,7 +9,7 @@
 
 using namespace std;
 
-// Construcotr takes in an array to build a ST for
+// Constructor takes in an array to build a ST for
 SegmentTree::SegmentTree(const std::vector<int> &arr)
 {
     n = arr.size();

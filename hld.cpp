@@ -16,7 +16,7 @@ vector<int> head(N);            // stores the head of the chain to which node u 
 vector<int> pos(N);             // stores the position of node u in the segment tree array
 vector<int> parent(N);          // stores the parent of node u
 vector<int> depth(N);           // stores the depth of node u
-vector<int> sizes(N);            // stores the subtree size of u
+vector<int> sizes(N);           // stores the subtree size of u
 
 int cur_pos;                    // used to assign positions to nodes in the segment tree array
 
