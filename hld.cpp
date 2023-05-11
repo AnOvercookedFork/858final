@@ -1,3 +1,7 @@
+// References:
+// https://github.com/anudeep2011/programming/blob/master/qtree.cpp
+// https://cp-algorithms.com/graph/hld.html#implementation
+
 #include <iostream>
 #include <vector>
 #include "segment_tree.hpp"

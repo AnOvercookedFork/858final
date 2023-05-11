@@ -1,3 +1,7 @@
+// References:
+// https://github.com/anudeep2011/programming/blob/master/qtree.cpp
+// https://cp-algorithms.com/data_structures/segment_tree.html
+
 #include <vector>
 #include <iostream>
 
@@ -5,6 +9,7 @@
 
 using namespace std;
 
+// Construcotr takes in an array to build a ST for
 SegmentTree::SegmentTree(const std::vector<int> &arr)
 {
     n = arr.size();
@@ -12,6 +17,7 @@ SegmentTree::SegmentTree(const std::vector<int> &arr)
     build(arr, 1, 0, n - 1);
 }
 
+// Construct the segment tree recursively from an array
 void SegmentTree::build(const std::vector<int> &arr, int v, int tl, int tr)
 {
     if (tl == tr)
@@ -27,11 +33,13 @@ void SegmentTree::build(const std::vector<int> &arr, int v, int tl, int tr)
     }
 }
 
+// Calls recursive query with starting arguments
 int SegmentTree::query(int l, int r)
 {
     return query(1, 0, n - 1, l, r);
 }
 
+// Recursively query the segment tree
 int SegmentTree::query(int v, int tl, int tr, int l, int r)
 {
     if (l > r)
@@ -47,11 +55,13 @@ int SegmentTree::query(int v, int tl, int tr, int l, int r)
            query(2 * v + 1, tm + 1, tr, std::max(l, tm + 1), r);
 }
 
+// Calls recursive update with starting arguments
 void SegmentTree::update(int idx, int val)
 {
     update(1, 0, n - 1, idx, val);
 }
 
+// Recursively a single element of the segment tree
 void SegmentTree::update(int v, int tl, int tr, int idx, int val)
 {
     if (tl == tr)
