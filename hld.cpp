@@ -36,13 +36,13 @@ void dfs(int v)
     }
 }
 
-// Performs heavy-light decomposition greedily (after DFS)
+// Performs heavy-light decomposition greedily (after doing DFS)
 // Assumes we have parent, depth, subtree size, and heavy child of each node
-// Determine where the chains should be (assigns head for each node)
+// Determine where the chains should be (assigns "head" for each node)
 void decompose(int v, int h)
 {
-    head[v] = h;
-    pos[v] = cur_pos++;
+    head[v] = h;            // make the current node's chain whatever was passed from parent
+    pos[v] = cur_pos++;     // assign position in segment tree array
 
     // If v has a heavy child, then do special case
     if (heavy[v] != -1)
@@ -71,7 +71,7 @@ void decompose(int v, int h)
 // aka Sum(A, B) from slides
 int query_path(SegmentTree &tree, int u, int v)
 {
-    int res = 0;
+    int res = 0;    // accumulator
 
     // Traverses from u -> LCA(u, v), summing along the way
     while (head[u] != head[v])
@@ -92,6 +92,7 @@ int query_path(SegmentTree &tree, int u, int v)
     }
 
     // Sums nodes from LCA(u, v) -> v
+    // this is not the same v we started out with!
     res += tree.query(pos[u], pos[v]);
     return res;
 }
@@ -102,10 +103,14 @@ void update_node(SegmentTree &tree, int u, int val)
     tree.update(pos[u], val);                       // Update the value at position pos[u] to val
 }
 
+// driver code for building tree from cin
 int main()
 {
-    int n, q;
+    int n;      // number of nodes
+    int q;      // number of queries
     cin >> n >> q;
+
+    // edges
     for (int i = 0; i < n - 1; i++)
     {
         int u, v;
@@ -113,10 +118,19 @@ int main()
         adj[u].push_back(v);
         adj[v].push_back(u);
     }
+
+    // run dfs from root node (1)
     dfs(1);
+
+    // run decompose from root node (1)
+    // start with just 1 chain
     decompose(1, 1);
+
+    // create a segment tree from values (initially no values)
     vector<int> values(n);
     SegmentTree tree(values);
+
+    // run range and update queries q times
     while (q--)
     {
         char type;
@@ -134,6 +148,7 @@ int main()
     return 0;
 }
 
+// driver code for testing segment tree
 // int main()
 // {
 //     vector<int> arr = {1, 3, 5, 7, 9, 11};
