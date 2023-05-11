@@ -1,91 +1,74 @@
 #include <vector>
 #include <iostream>
 
+#include "segment_tree.hpp"
+
 using namespace std;
 
-class SegmentTree
+SegmentTree::SegmentTree(const std::vector<int> &arr)
 {
-public:
-    SegmentTree(const vector<int> &arr)
+    n = arr.size();
+    tree.resize(4 * n);
+    build(arr, 1, 0, n - 1);
+}
+
+void SegmentTree::build(const std::vector<int> &arr, int v, int tl, int tr)
+{
+    if (tl == tr)
     {
-        n = arr.size();
-        tree.resize(4 * n);
-        build(arr, 1, 0, n - 1);
+        tree[v] = arr[tl];
     }
-
-    int query(int l, int r)
+    else
     {
-        return query(1, 0, n - 1, l, r);
+        int tm = (tl + tr) / 2;
+        build(arr, 2 * v, tl, tm);
+        build(arr, 2 * v + 1, tm + 1, tr);
+        tree[v] = tree[2 * v] + tree[2 * v + 1];
     }
+}
 
-    void update(int index, int value)
+int SegmentTree::query(int l, int r)
+{
+    return query(1, 0, n - 1, l, r);
+}
+
+int SegmentTree::query(int v, int tl, int tr, int l, int r)
+{
+    if (l > r)
     {
-        update(1, 0, n - 1, index, value);
+        return 0;
     }
-
-private:
-    int n;
-    vector<int> tree;
-
-    void build(const vector<int> &arr, int node, int start, int end)
+    if (l == tl && r == tr)
     {
-        if (start == end)
+        return tree[v];
+    }
+    int tm = (tl + tr) / 2;
+    return query(2 * v, tl, tm, l, std::min(r, tm)) +
+           query(2 * v + 1, tm + 1, tr, std::max(l, tm + 1), r);
+}
+
+void SegmentTree::update(int idx, int val)
+{
+    update(1, 0, n - 1, idx, val);
+}
+
+void SegmentTree::update(int v, int tl, int tr, int idx, int val)
+{
+    if (tl == tr)
+    {
+        tree[v] = val;
+    }
+    else
+    {
+        int tm = (tl + tr) / 2;
+        if (idx <= tm)
         {
-            tree[node] = arr[start];
+            update(2 * v, tl, tm, idx, val);
         }
         else
         {
-            int mid = (start + end) / 2;
-            build(arr, 2 * node, start, mid);
-            build(arr, 2 * node + 1, mid + 1, end);
-            tree[node] = tree[2 * node] + tree[2 * node + 1];
+            update(2 * v + 1, tm + 1, tr, idx, val);
         }
+        tree[v] = tree[2 * v] + tree[2 * v + 1];
     }
-
-    int query(int node, int start, int end, int l, int r)
-    {
-        if (r < start || end < l)
-        {
-            return 0;
-        }
-        if (l <= start && end <= r)
-        {
-            return tree[node];
-        }
-        int mid = (start + end) / 2;
-        int left_sum = query(2 * node, start, mid, l, r);
-        int right_sum = query(2 * node + 1, mid + 1, end, l, r);
-        return left_sum + right_sum;
-    }
-
-    void update(int node, int start, int end, int index, int value)
-    {
-        if (start == end)
-        {
-            tree[node] = value;
-        }
-        else
-        {
-            int mid = (start + end) / 2;
-            if (start <= index && index <= mid)
-            {
-                update(2 * node, start, mid, index, value);
-            }
-            else
-            {
-                update(2 * node + 1, mid + 1, end, index, value);
-            }
-            tree[node] = tree[2 * node] + tree[2 * node + 1];
-        }
-    }
-};
-
-int main()
-{
-    vector<int> arr = {1, 3, 5, 7, 9, 11};
-    SegmentTree tree(arr);
-    cout << tree.query(1, 3) << endl; // outputs 15
-    tree.update(2, 6);
-    cout << tree.query(1, 3) << endl; // outputs 16
-    return 0;
 }
