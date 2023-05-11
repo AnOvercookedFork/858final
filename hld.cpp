@@ -6,9 +6,17 @@ using namespace std;
 
 const int N = 100005;
 
-vector<int> adj[N], heavy(N, -1), head(N), pos(N), parent(N), depth(N), size(N);
-int cur_pos;
+vector<int> adj[N];             // adjacency list representation of the tree
+vector<int> heavy(N, -1);       // stores the heavy child of each node u
+vector<int> head(N);            // stores the head of the chain to which node u belongs
+vector<int> pos(N);             // stores the position of node u in the segment tree array
+vector<int> parent(N);          // stores the parent of node u
+vector<int> depth(N);           // stores the depth of node u
+vector<int> size(N);            // stores the subtree size of u
 
+int cur_pos;                    // used to assign positions to nodes in the segment tree array
+
+// Computes parent, depth, subtree size, and heavy child of each node using DFS
 void dfs(int v)
 {
     size[v] = 1;
@@ -28,46 +36,70 @@ void dfs(int v)
     }
 }
 
+// Performs heavy-light decomposition greedily (after DFS)
+// Assumes we have parent, depth, subtree size, and heavy child of each node
+// Determine where the chains should be (assigns head for each node)
 void decompose(int v, int h)
 {
     head[v] = h;
     pos[v] = cur_pos++;
+
+    // If v has a heavy child, then do special case
     if (heavy[v] != -1)
     {
+        // If v has a heavy child, continue the current chain by passing in h
+        // h is the head of the current chain
         decompose(heavy[v], h);
     }
+
+    // Otherwise, for all other children:
     for (int u : adj[v])
     {
-        if (u != parent[v] && u != heavy[v])
+        if (u != parent[v] && u != heavy[v]) // Ensure that u is a light child
         {
+            // Create a new chain for u
             decompose(u, u);
         }
     }
+
+    // Now, we have set "head" for each node properly
+    // i.e. chains have been determined properly
 }
 
+
+// Performs range query on the path between nodes u and v
+// aka Sum(A, B) from slides
 int query_path(SegmentTree &tree, int u, int v)
 {
     int res = 0;
+
+    // Traverses from u -> LCA(u, v), summing along the way
     while (head[u] != head[v])
     {
         if (depth[head[u]] < depth[head[v]])
         {
-            swap(u, v);
+            swap(u, v);                                 // Move up both u and v together to get to LCA
         }
-        res += tree.query(pos[head[u]], pos[u]);
-        u = parent[head[u]];
+        res += tree.query(pos[head[u]], pos[u]);        // Sum along current chain
+        u = parent[head[u]];                            // Update u to be parent of current chain
     }
+    
+    // Ensures that u is the node with smaller depth
+    // aka u is LCA(u, v)
     if (depth[u] > depth[v])
     {
-        swap(u, v);
+        swap(u, v);                                     
     }
+
+    // Sums nodes from LCA(u, v) -> v
     res += tree.query(pos[u], pos[v]);
     return res;
 }
 
+// Update query for node u
 void update_node(SegmentTree &tree, int u, int val)
 {
-    tree.update(pos[u], val);
+    tree.update(pos[u], val);                       // Update the value at position pos[u] to val
 }
 
 int main()
