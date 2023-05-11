@@ -6,12 +6,12 @@ using namespace std;
 
 const int N = 100005;
 
-vector<int> adj[N], heavy(N, -1), head(N), pos(N), parent(N), depth(N), size(N);
+vector<int> adj[N], heavy(N, -1), head(N), pos(N), parent(N), depth(N), sizes(N);
 int cur_pos;
 
 void dfs(int v)
 {
-    size[v] = 1;
+    sizes[v] = 1;
     for (int u : adj[v])
     {
         if (u != parent[v])
@@ -19,8 +19,8 @@ void dfs(int v)
             parent[u] = v;
             depth[u] = depth[v] + 1;
             dfs(u);
-            size[v] += size[u];
-            if (heavy[v] == -1 || size[u] > size[heavy[v]])
+            sizes[v] += sizes[u];
+            if (heavy[v] == -1 || sizes[u] > sizes[heavy[v]])
             {
                 heavy[v] = u;
             }

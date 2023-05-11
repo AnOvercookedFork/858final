@@ -99,7 +99,7 @@ TreeNode* generateRandomTree(int n) {
 
     for (int i = 1; i < n; i++) {
         int parentIdx = rand() % i;
-        addEdge(nodes, node_indices[parentIdx], node_indices[i]);
+        addEdge(nodes, parentIdx, i);
     }
 
     return nodes;
@@ -166,6 +166,7 @@ int query(TreeNode* a, TreeNode* b, SegmentTree& st, int n) {
             b = temp;
         }
         int cur_heavy_path_max = st.query(0, 0, n-1, b->head->pos, b->pos);
+        std::cout << "st query " << b->head->pos << "," << b->pos << "was " << cur_heavy_path_max << std::endl;
         res = std::max(res, cur_heavy_path_max);
     }
     if (a->depth > b->depth) {
@@ -174,6 +175,7 @@ int query(TreeNode* a, TreeNode* b, SegmentTree& st, int n) {
         b = temp;
     }
     int last_heavy_path_max = st.query(0, 0, n-1, a->pos, b->pos);
+    std::cout << "st query " << a->pos << "," << b->pos << "was " << last_heavy_path_max << std::endl;
     res = std::max(res, last_heavy_path_max);
     return res;
 }
@@ -198,9 +200,16 @@ int main(int argc, char* argv[]) {
 
     SegmentTree st = SegmentTree(n);
     st.build(hldValues, 0, 0, n-1);
-    std::cout << query(&nodes[2], &nodes[3], st, n) << std::endl;
+    int u = 4;
+    int v = 3;
+    std::cout << query(&nodes[u], &nodes[v], st, n) << std::endl;
+    std::cout << nodes[u].idx << " " << nodes[v].idx << std::endl;
     for (int i = 0; i < n; i++) {
         std::cout << order[i] << " ";
+    }
+    std::cout << std::endl;
+    for (int i = 0; i < n; i++) {
+        std::cout << hldValues[i] << " ";
     }
     std::cout << std::endl;
     for (int i = 0; i < n; i++) {
