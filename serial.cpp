@@ -160,7 +160,7 @@ void decompose(TreeNode* v, TreeNode* h, std::vector<int>& values, std::vector<i
 int main(int argc, char* argv[]) {
     clock_t start = clock();
 
-    int n = 20; // Desired number of nodes in the tree
+    int n = 5; // Desired number of nodes in the tree
     TreeNode* nodes = generateRandomTree(n);
 
     // printTree(*tree);
@@ -177,12 +177,16 @@ int main(int argc, char* argv[]) {
 
     SegmentTree st = SegmentTree(n);
     st.build(hldValues, 0, 0, n-1);
-    std::cout << st.query(0, 0, n-1, 2, 20) << std::endl;
+    std::cout << st.query(0, 0, n-1, 0, 2) << std::endl;
 
     for (int i = 0; i < n; i++) {
         std::cout << order[i] << " ";
     }
-    std::cout << std::endl << nodes[6].data << " " << nodes[7].data << std::endl;
+    std::cout << std::endl;
+    for (int i = 0; i < n; i++) {
+        std::cout << nodes[i].data << " ";
+    }
+    std::cout << std::endl;
 
     end = clock();
     std::cout << ((double) (end - start)) / CLOCKS_PER_SEC << " seconds " << "for " << n << " nodes" << std::endl;
