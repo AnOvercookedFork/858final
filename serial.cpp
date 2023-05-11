@@ -6,7 +6,7 @@
 typedef struct TreeNode {
     int idx;
     int data;
-    int head;
+    TreeNode* head;
     int pos;
     TreeNode* parent;
     int depth = 0;
@@ -107,7 +107,7 @@ TreeNode* generateRandomTree(int n) {
 
 void printTree(const TreeNode& tree) {
     std::cout << "idx: " << tree.idx << " data: " << tree.data << ", size: " << tree.size << ", heavy: " << (tree.heavy ? tree.heavy->data : -1);
-    std::cout << " heavy head: " << tree.head << " st pos " << tree.pos << " children: ";
+    std::cout << " heavy head: " << tree.head->idx << " st pos " << tree.pos << " children: ";
     for (const TreeNode* child : tree.children) {
         std::cout << child->idx << " ";
     }
@@ -145,7 +145,7 @@ void markHeavy(TreeNode& tree, int depth) {
 
 int curPos = 0;
 void decompose(TreeNode* v, TreeNode* h, std::vector<int>& values, std::vector<int>& order) {
-    v->head = h->idx;
+    v->head = h;
     v->pos = curPos++;
     values.push_back(v->data);
     order.push_back(v->idx);
@@ -155,6 +155,27 @@ void decompose(TreeNode* v, TreeNode* h, std::vector<int>& values, std::vector<i
         if (c != v->heavy)
             decompose(c, c, values, order);
     }
+}
+
+int query(TreeNode* a, TreeNode* b, SegmentTree& st, int n) {
+    int res = 0;
+    for (; a->head != b->head; b = b->head->parent) {
+        if (a->head->depth > b->head->depth) {
+            TreeNode* temp = a;
+            a = b;
+            b = temp;
+        }
+        int cur_heavy_path_max = st.query(0, 0, n-1, b->head->pos, b->pos);
+        res = std::max(res, cur_heavy_path_max);
+    }
+    if (a->depth > b->depth) {
+        TreeNode* temp = a;
+        a = b;
+        b = temp;
+    }
+    int last_heavy_path_max = st.query(0, 0, n-1, a->pos, b->pos);
+    res = std::max(res, last_heavy_path_max);
+    return res;
 }
 
 int main(int argc, char* argv[]) {
@@ -177,14 +198,13 @@ int main(int argc, char* argv[]) {
 
     SegmentTree st = SegmentTree(n);
     st.build(hldValues, 0, 0, n-1);
-    std::cout << st.query(0, 0, n-1, 0, 2) << std::endl;
-
+    std::cout << query(&nodes[2], &nodes[3], st, n) << std::endl;
     for (int i = 0; i < n; i++) {
         std::cout << order[i] << " ";
     }
     std::cout << std::endl;
     for (int i = 0; i < n; i++) {
-        std::cout << nodes[i].data << " ";
+        std::cout << nodes[i].idx << " ";
     }
     std::cout << std::endl;
 
