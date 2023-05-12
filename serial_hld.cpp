@@ -130,16 +130,29 @@ int main()
         adj[v].push_back(u);
     }
 
-    // run dfs from root node (1)
-    dfs(1);
+    // run dfs from root node (index 0)
+    dfs(0);
 
-    // run decompose from root node (1)
-    // start with just 1 chain
-    decompose(1, 1);
+    // run decompose from root node (index 0)
+    // start with root node's head being itself
+    decompose(0, 0);
 
-    // create a large segment tree with an array of size n
+    // initialize values of nodes to be indices
     vector<int> values(n);
-    SegmentTree tree(values);
+    for (int i = 0; i < n; i++)
+    {
+        values[i] = i;
+    }
+
+    // build a singular ST for whole tree, based on dfs array of nodes
+    // dfs_values contains node values in dfs order
+    vector<int> dfs_values(n);
+    for (int i = 0; i < n; i++)
+    {
+        dfs_values[pos[i]] = values[i];
+    }
+
+    SegmentTree tree(dfs_values);
 
     // run range and update queries q times
     while (q--)
