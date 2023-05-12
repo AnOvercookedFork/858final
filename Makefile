@@ -5,4 +5,10 @@ serial: serial.cpp
 	$(CC) $(CFLAGS) -o $@ $<
 
 hld: hld.cpp segment_tree.cpp
-	$(CC) $(CFLAGS) hld.cpp segment_tree.cpp -o hld
+	$(CC) $(CFLAGS) -o $@ $^
+
+st_test: st_test.cpp segment_tree.cpp
+	$(CC) $(CFLAGS) -o $@ $^
+
+clean:
+	rm -rf serial hld st_test

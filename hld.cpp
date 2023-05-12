@@ -10,17 +10,18 @@ using namespace std;
 
 const int N = 100005;
 
-vector<int> adj[N];             // adjacency list representation of the tree
-vector<int> heavy(N, -1);       // stores the heavy child of each node u
-vector<int> head(N);            // stores the head of the chain to which node u belongs
-vector<int> pos(N);             // stores the position of node u in the segment tree array
-vector<int> parent(N);          // stores the parent of node u
-vector<int> depth(N);           // stores the depth of node u
-vector<int> sizes(N);           // stores the subtree size of u
+vector<int> adj[N];       // adjacency list representation of the tree
+vector<int> heavy(N, -1); // stores the heavy child of each node u
+vector<int> head(N);      // stores the head of the chain to which node u belongs
+vector<int> pos(N);       // stores the position of node u in the segment tree array
+vector<int> parent(N);    // stores the parent of node u
+vector<int> depth(N);     // stores the depth of node u
+vector<int> sizes(N);     // stores the subtree size of u
 
-int cur_pos;                    // used to assign positions to nodes in the segment tree array
+int cur_pos; // used to assign positions to nodes in the segment tree array
 
 // Computes parent, depth, subtree size, and heavy child of each node using DFS
+// O(n) time
 void dfs(int v)
 {
     sizes[v] = 1;
@@ -40,13 +41,14 @@ void dfs(int v)
     }
 }
 
-// Performs heavy-light decomposition greedily (after doing DFS)
+// Performs heavy-light decomposition greedily
 // Assumes we have parent, depth, subtree size, and heavy child of each node
-// Determine where the chains should be (assigns "head" for each node)
+// Determines where the chains should be (assigns "head" for each node)
+// O(n) time
 void decompose(int v, int h)
 {
-    head[v] = h;            // make the current node's chain whatever was passed from parent
-    pos[v] = cur_pos++;     // assign position in segment tree array
+    head[v] = h;        // make the current node's chain whatever was passed from parent
+    pos[v] = cur_pos++; // assign position in segment tree array
 
     // If v has a heavy child, then do special case
     if (heavy[v] != -1)
@@ -70,29 +72,28 @@ void decompose(int v, int h)
     // i.e. chains have been determined properly
 }
 
-
-// Performs range query on the path between nodes u and v
-// aka Sum(A, B) from slides
+// Performs range query on the path between nodes u and v, i.e. Sum(A, B) from slides
+// O(log^2 n)
 int query_path(SegmentTree &tree, int u, int v)
 {
-    int res = 0;    // accumulator
+    int res = 0; // accumulator
 
     // Traverses from u -> LCA(u, v), summing along the way
     while (head[u] != head[v])
     {
         if (depth[head[u]] < depth[head[v]])
         {
-            swap(u, v);                                 // Move up both u and v together to get to LCA
+            swap(u, v); // Move up both u and v together to get to LCA
         }
-        res += tree.query(pos[head[u]], pos[u]);        // Sum along current chain
-        u = parent[head[u]];                            // Update u to be parent of current chain
+        res += tree.query(pos[head[u]], pos[u]); // Sum along current chain
+        u = parent[head[u]];                     // Update u to be parent of current chain
     }
-    
+
     // Ensures that u is the node with smaller depth
     // aka u is LCA(u, v)
     if (depth[u] > depth[v])
     {
-        swap(u, v);                                     
+        swap(u, v);
     }
 
     // Sums nodes from LCA(u, v) -> v
@@ -102,16 +103,17 @@ int query_path(SegmentTree &tree, int u, int v)
 }
 
 // Update query for node u
+// O(log n)
 void update_node(SegmentTree &tree, int u, int val)
 {
-    tree.update(pos[u], val);                       // Update the value at position pos[u] to val
+    tree.update(pos[u], val); // Update the value at position pos[u] to val
 }
 
-// driver code for building tree from cin
+// Driver code for building tree from cin
 int main()
 {
-    int n;      // number of nodes
-    int q;      // number of queries
+    int n; // number of nodes
+    int q; // number of queries
     cin >> n >> q;
 
     // edges
@@ -151,14 +153,3 @@ int main()
     }
     return 0;
 }
-
-// driver code for testing segment tree
-// int main()
-// {
-//     vector<int> arr = {1, 3, 5, 7, 9, 11};
-//     SegmentTree tree(arr);
-//     cout << tree.query(1, 3) << endl; // outputs 15
-//     tree.update(2, 6);
-//     cout << tree.query(1, 3) << endl; // outputs 16
-//     return 0;
-// }
