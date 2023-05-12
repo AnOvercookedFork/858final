@@ -1,6 +1,10 @@
-// References:
-// https://github.com/anudeep2011/programming/blob/master/qtree.cpp
-// https://cp-algorithms.com/data_structures/segment_tree.html
+/*
+ * Serial implementation of a segment tree.
+ *
+ * References:
+ * - https://github.com/anudeep2011/programming/blob/master/qtree.cpp
+ * - https://cp-algorithms.com/data_structures/segment_tree.html
+ */
 
 #include <vector>
 #include <iostream>

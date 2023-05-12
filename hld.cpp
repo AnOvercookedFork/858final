@@ -1,6 +1,11 @@
-// References:
-// https://github.com/anudeep2011/programming/blob/master/qtree.cpp
-// https://cp-algorithms.com/graph/hld.html#implementation
+/*
+ * Serial implementation of heavy-light decomposition.
+ *
+ * References:
+ * - https://github.com/anudeep2011/programming/blob/master/qtree.cpp
+ * - https://cp-algorithms.com/graph/hld.html#implementation
+ * - https://codeforces.com/blog/entry/81317
+ */
 
 #include <iostream>
 #include <vector>
@@ -132,7 +137,7 @@ int main()
     // start with just 1 chain
     decompose(1, 1);
 
-    // create a segment tree from values (initially no values)
+    // create a large segment tree with an array of size n
     vector<int> values(n);
     SegmentTree tree(values);
 
