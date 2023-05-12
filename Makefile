@@ -1,13 +1,10 @@
 CFLAGS = -fopenmp -O2 -g
 CC = g++
 
-serial: serial.cpp
-	$(CC) $(CFLAGS) -o $@ $<
-
-hld: hld.cpp segment_tree.cpp
+serial_hld: serial_hld.cpp serial_st.cpp
 	$(CC) $(CFLAGS) -o $@ $^
 
-st_test: st_test.cpp segment_tree.cpp
+serial_st_test: serial_st_test.cpp serial_st.cpp
 	$(CC) $(CFLAGS) -o $@ $^
 
 clean:

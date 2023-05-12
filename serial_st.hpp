@@ -1,5 +1,5 @@
-#ifndef SEGMENT_TREE_HPP
-#define SEGMENT_TREE_HPP
+#ifndef SERIAL_ST_HPP
+#define SERIAL_ST_HPP
 
 #include <vector>
 
