@@ -22,6 +22,7 @@ vector<int> pos(N);       // stores the position of node u in the segment tree a
 vector<int> parent(N);    // stores the parent of node u
 vector<int> depth(N);     // stores the depth of node u
 vector<int> sizes(N);     // stores the subtree size of u
+SegmentTree* st;          // segment tree built on DFS traversal of tree
 
 int cur_pos; // used to assign positions to nodes in the segment tree array
 
@@ -79,7 +80,7 @@ void decompose(int v, int h)
 
 // Performs range query on the path between nodes u and v, i.e. Sum(A, B) from slides
 // O(log^2 n)
-int query_path(SegmentTree &tree, int u, int v)
+int query_path(int u, int v)
 {
     int res = 0; // accumulator
 
@@ -90,7 +91,7 @@ int query_path(SegmentTree &tree, int u, int v)
         {
             swap(u, v); // Move up both u and v together to get to LCA
         }
-        res += tree.query(pos[head[u]], pos[u]); // Sum along current chain
+        res += st->query(pos[head[u]], pos[u]); // Sum along current chain
         u = parent[head[u]];                     // Update u to be parent of current chain
     }
 
@@ -103,15 +104,15 @@ int query_path(SegmentTree &tree, int u, int v)
 
     // Sums nodes from LCA(u, v) -> v
     // this is not the same v we started out with!
-    res += tree.query(pos[u], pos[v]);
+    res += st->query(pos[u], pos[v]);
     return res;
 }
 
 // Update query for node u
 // O(log n)
-void update_node(SegmentTree &tree, int u, int val)
+void update_node(int u, int val)
 {
-    tree.update(pos[u], val); // Update the value at position pos[u] to val
+    st->update(pos[u], val); // Update the value at position pos[u] to val
 }
 
 // Driver code for building tree from cin
@@ -152,7 +153,7 @@ int main()
         dfs_values[pos[i]] = values[i];
     }
 
-    SegmentTree tree(dfs_values);
+    st = new SegmentTree(dfs_values);
 
     // run range and update queries q times
     while (q--)
@@ -162,11 +163,11 @@ int main()
         cin >> type >> u >> v;
         if (type == 'Q')
         {
-            cout << query_path(tree, u, v) << endl;
+            cout << query_path(u, v) << endl;
         }
         else
         {
-            update_node(tree, u, v);
+            update_node(u, v);
         }
     }
     return 0;
