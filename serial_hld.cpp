@@ -43,6 +43,10 @@ void dfs(int v)
         if (u != kth[v][0])
         {
             kth[u][0] = v;
+            for (int i = 1; i < LOG; i++)
+            {
+                kth[u][i] = kth[kth[u][i - 1]][i - 1];
+            }
             depth[u] = depth[v] + 1;
             dfs(u);
             sizes[v] += sizes[u];
@@ -175,6 +179,11 @@ int query_path_old(int u, int v)
 int query_path(int u, int v)
 {
     int res = 0;
+    if (u > v)
+    {
+        swap(u, v);
+    }
+
     int lca_uv = lca(u, v);
 
     // sum from u to lca_uv
@@ -280,21 +289,12 @@ int main(int argc, char *argv[])
     preprocess(n);
 
     // Queries
-    cout << query_path_old(0, 1) << "\n";
-    cout << query_path_old(0, 2) << "\n";
-    cout << query_path_old(1, 2) << "\n";
-    cout << query_path_old(3, 2) << "\n";
-    cout << query_path_old(3, 4) << "\n";
-    cout << query_path_old(3, 5) << "\n";
-    cout << query_path_old(4, 5) << "\n";
-    cout << query_path_old(6, 8) << "\n";
-    cout << query_path_old(6, 7) << "\n";
-    cout << query_path_old(6, 5) << "\n";
-    cout << query_path_old(9, 4) << "\n";
-    cout << query_path_old(8, 2) << "\n";
-    cout << query_path_old(6, 0) << "\n";
-    cout << query_path_old(10, 6) << "\n";
-    cout << query_path_old(10, 9) << "\n";
+    for (int i = 0; i < 25; i++)
+    {
+        int u = rand() % n;
+        int v = rand() % n;
+        cout << query_path(u, v) << "\n";
+    }
 
     return 0;
 }
