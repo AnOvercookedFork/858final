@@ -3,18 +3,20 @@
 
 #include <vector>
 
-class SegmentTree {
+class SegmentTree
+{
 public:
-    SegmentTree(const std::vector<int>& arr);
+    SegmentTree(const std::vector<int> &arr);
     int query(int l, int r);
     void update(int idx, int val);
+
 private:
     int n;
     std::vector<int> tree;
 
-    void build(const std::vector<int>& arr, int v, int tl, int tr);
+    void build(const std::vector<int> &arr, int v, int tl, int tr);
     int query(int v, int tl, int tr, int l, int r);
     void update(int v, int tl, int tr, int idx, int val);
 };
 
-#endif 
+#endif

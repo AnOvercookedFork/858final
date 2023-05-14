@@ -7,9 +7,8 @@
 
 using namespace std;
 
-
 // Generates a tree with n nodes, h height, k arity, and b balance
-void generate_tree(vector<vector<int>>& adj, int n, int h, int k, double b)
+void generate_tree(vector<vector<int>> &adj, int n, int h, int k, double b)
 {
     if (n == 0 || k == 0)
     {
@@ -40,7 +39,7 @@ void generate_tree(vector<vector<int>>& adj, int n, int h, int k, double b)
 }
 
 // Fills in values vector with random values
-void generate_random_values(vector<int>& values, int n)
+void generate_random_values(vector<int> &values, int n)
 {
     int max_val = sqrt(__INT32_MAX__);
     for (int i = 0; i < n; i++)
@@ -49,7 +48,7 @@ void generate_random_values(vector<int>& values, int n)
     }
 }
 
-void add_child(vector<vector<int>>& adj, int parent, int child)
+void add_child(vector<vector<int>> &adj, int parent, int child)
 {
     adj[parent].push_back(child);
     adj[child].push_back(parent);
@@ -63,7 +62,7 @@ void add_child(vector<vector<int>>& adj, int parent, int child)
     3   4   5
    /|\  | \
   6 7 8 9  10
-  
+
   Good for testing correctness:
   query_path(3, 5) = 11
   query_path(6, 5) = 17
@@ -72,7 +71,7 @@ void add_child(vector<vector<int>>& adj, int parent, int child)
   query_path(10, 6) = 24
   query_path(10, 9) = 23
 */
-void generate_simple_tree(vector<vector<int>>& adj, vector<int>& values)
+void generate_simple_tree(vector<vector<int>> &adj, vector<int> &values)
 {
     add_child(adj, 0, 1);
     add_child(adj, 0, 2);
