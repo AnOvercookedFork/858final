@@ -2,3 +2,4 @@ ignore
 .vscode
 serial_hld
 serial_st_test
+parlay_test
