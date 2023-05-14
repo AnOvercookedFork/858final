@@ -10,6 +10,9 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <cstring>
+#include "getopt.h"
+
 #include "serial_st.hpp"
 #include "tree.hpp"
 
@@ -142,11 +145,43 @@ void update_node(int u, int val)
     st->update(pos[u], val); // Update the value at position pos[u] to val
 }
 
-bool simple = false;
-
 // Driver code
-int main()
+int main(int argc, char *argv[])
 {
+    // Parse command line arguments
+    int opt;
+    bool simple = false, debug = false;
+    int n = pow(2, 16) - 1;
+    int h = 16;
+    int k = 2;
+    double b = 0.0;
+
+    while ((opt = getopt(argc, argv, "sn:k:h:b:d")) != -1)
+    {
+        switch (opt)
+        {
+        case 's':
+            simple = true;
+            break;
+        case 'n':
+            n = atoi(optarg);
+            break;
+        case 'k':
+            k = atoi(optarg);
+            break;
+        case 'h':
+            h = atoi(optarg);
+            break;
+        case 'b':
+            b = atof(optarg);
+            break;
+        case 'd':
+            debug = true;
+            break;
+        }
+    }
+
+    // If "-s" flag is specified, then generate a "simple" tree
     if (simple)
     {
         // Generate tree and values
@@ -163,31 +198,30 @@ int main()
         cout << query_path(8, 2) << "\n";
         cout << query_path(10, 6) << "\n";
         cout << query_path(10, 9) << "\n";
+        return 0;
     }
-    else
-    {
-        // Generate tree and values
-        int n = pow(2, 16) - 1;
-        int h = 16;
-        int k = 2;
-        double b = 0.0;
 
-        generate_tree(adj, n, h, k, b);
+    // Otherwise, generate tree using command line args
+    generate_tree(adj, n, h, k, b);
 
-        srand(0);
-        generate_random_values(values, n);
+    // Print tree if debug
+    if (debug)
+        print_tree(adj, n);
 
-        // Preprocess
-        preprocess(n);
+    // Generate random values
+    srand(0);
+    generate_random_values(values, n);
 
-        // Queries
-        cout << query_path(3, 5) << "\n";
-        cout << query_path(6, 5) << "\n";
-        cout << query_path(9, 4) << "\n";
-        cout << query_path(8, 2) << "\n";
-        cout << query_path(10, 6) << "\n";
-        cout << query_path(10, 9) << "\n";
-    }
+    // Preprocess
+    preprocess(n);
+
+    // Queries
+    cout << query_path(3, 5) << "\n";
+    cout << query_path(6, 5) << "\n";
+    cout << query_path(9, 4) << "\n";
+    cout << query_path(8, 2) << "\n";
+    cout << query_path(10, 6) << "\n";
+    cout << query_path(10, 9) << "\n";
 
     return 0;
 }

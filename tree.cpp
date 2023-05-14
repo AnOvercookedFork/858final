@@ -1,3 +1,11 @@
+/*
+ * Utility functions to generate different trees to test on.
+ *
+ * References:
+ * - https://github.com/anudeep2011/programming/blob/master/qtree.cpp
+ * - https://cp-algorithms.com/data_structures/segment_tree.html
+ */
+
 #include <vector>
 #include <queue>
 #include <cmath>
@@ -6,6 +14,12 @@
 #include "tree.hpp"
 
 using namespace std;
+
+void add_child(vector<vector<int>> &adj, int parent, int child)
+{
+    adj[parent].push_back(child);
+    adj[child].push_back(parent);
+}
 
 // Generates a tree with n nodes, h height, k arity, and b balance
 void generate_tree(vector<vector<int>> &adj, int n, int h, int k, double b)
@@ -30,8 +44,7 @@ void generate_tree(vector<vector<int>> &adj, int n, int h, int k, double b)
             for (int l = 0; l < k && num_nodes < n; l++)
             {
                 int child = num_nodes++;
-                adj[parent].push_back(child);
-                adj[child].push_back(parent);
+                add_child(adj, parent, child);
                 q.push(child);
             }
         }
@@ -46,12 +59,6 @@ void generate_random_values(vector<int> &values, int n)
     {
         values[i] = rand() % max_val;
     }
-}
-
-void add_child(vector<vector<int>> &adj, int parent, int child)
-{
-    adj[parent].push_back(child);
-    adj[child].push_back(parent);
 }
 
 /* Generates this tree:
@@ -87,5 +94,19 @@ void generate_simple_tree(vector<vector<int>> &adj, vector<int> &values)
     for (int i = 0; i < 11; i++)
     {
         values[i] = i;
+    }
+}
+
+// Prints the adjacency list for all nodes
+void print_tree(vector<vector<int>> &adj, int n)
+{
+    for (int i = 0; i < n; i++)
+    {
+        cout << i << ": ";
+        for (int j = 0; j < adj[i].size(); j++)
+        {
+            cout << adj[i][j] << ",";
+        }
+        cout << "\n";
     }
 }
