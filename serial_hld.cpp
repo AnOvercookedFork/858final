@@ -19,20 +19,36 @@
 
 using namespace std;
 
-const int N = 1e7;
+const int N = 1e8;
 const int LOG = 27;
 
-vector<int> adj[N]; // adjacency list representation of the tree
-int heavy[N];       // stores the heavy child of each node u
-int head[N];        // stores the head of the chain to which node u belongs
-int pos[N];         // stores the position of node u in the segment tree array
-int depth[N];       // stores the depth of node u
-int sizes[N];       // stores the subtree size of u
-int values[N];      // stores the value of node u
-int kth[N][LOG];    // stores the kth ancestor of node u -- kth[u][0] is u's parent
-SegmentTree *st;    // segment tree built on DFS traversal of tree
+vector<int> *adj; // adjacency list representation of the tree
+int *heavy;       // stores the heavy child of each node u
+int *head;        // stores the head of the chain to which node u belongs
+int *pos;         // stores the position of node u in the segment tree array
+int *depth;       // stores the depth of node u
+int *sizes;       // stores the subtree size of u
+int *values;      // stores the value of node u
+int **kth;        // stores the kth ancestor of node u -- kth[u][0] is u's parent
 
-int cur_pos; // used to assign positions to nodes in the segment tree array
+SegmentTree *st; // segment tree built on DFS traversal of tree
+int cur_pos;     // used to assign positions to nodes in the segment tree array
+
+void alloc_all()
+{
+    adj = (vector<int> *)malloc(N * sizeof(vector<int>)); // allocate memory for adj
+    heavy = (int *)malloc(N * sizeof(int));               // allocate memory for heavy
+    head = (int *)malloc(N * sizeof(int));                // allocate memory for head
+    pos = (int *)malloc(N * sizeof(int));                 // allocate memory for pos
+    depth = (int *)malloc(N * sizeof(int));               // allocate memory for depth
+    sizes = (int *)malloc(N * sizeof(int));               // allocate memory for sizes
+    values = (int *)malloc(N * sizeof(int));              // allocate memory for values
+    kth = (int **)malloc(N * sizeof(int *));              // allocate memory for kth
+    for (int i = 0; i < N; i++)
+    {
+        kth[i] = (int *)malloc(LOG * sizeof(int)); // allocate memory for each row of kth
+    }
+}
 
 // Computes parent, depth, subtree size, and heavy child of each node using DFS
 // O(n) time
@@ -251,6 +267,8 @@ void update_node(int u, int val)
 // Driver code
 int main(int argc, char *argv[])
 {
+    alloc_all();
+
     // Parse command line arguments
     int opt;
     bool simple = false, debug = false;
