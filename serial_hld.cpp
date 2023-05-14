@@ -16,6 +16,7 @@
 #include "serial_st.hpp"
 #include "tree.hpp"
 #include "parallel.h"
+#include "get_time.h"
 
 using namespace std;
 
