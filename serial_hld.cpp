@@ -18,7 +18,7 @@
 
 using namespace std;
 
-const int N = 100005;
+const int N = 1e7;
 const int LOG = 27;
 
 vector<vector<int>> adj(N); // adjacency list representation of the tree
@@ -221,7 +221,6 @@ int main(int argc, char *argv[])
     int n = pow(2, 16) - 1;
     int h = 16;
     int k = 2;
-    double b = 0.0;
 
     while ((opt = getopt(argc, argv, "sn:k:h:b:d")) != -1)
     {
@@ -289,11 +288,12 @@ int main(int argc, char *argv[])
     preprocess(n);
 
     // Queries
-    for (int i = 0; i < 25; i++)
+    for (int i = 0; i < 1000000; i++)
     {
         int u = rand() % n;
         int v = rand() % n;
-        cout << query_path(u, v) << "\n";
+        query_path(u, v);
+        // cout << query_path(u, v) << "\n";
     }
 
     return 0;
