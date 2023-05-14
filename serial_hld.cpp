@@ -15,6 +15,7 @@
 
 #include "serial_st.hpp"
 #include "tree.hpp"
+#include "parallel.h"
 
 using namespace std;
 
@@ -203,6 +204,40 @@ int query_path(int u, int v)
     res += st->query(pos[lca_uv] + 1, pos[v]);
 
     return res;
+}
+
+// Parallelized version of above
+int query_path_parallel(int u, int v)
+{
+    if (u > v)
+    {
+        swap(u, v);
+    }
+
+    int lca_uv = lca(u, v);
+
+    int left_res = 0;
+    int right_res = 0;
+
+    parlay::par_do([&]{
+        // sum from u to lca_uv
+        while (head[u] != head[lca_uv])
+        {
+            left_res += st->query(pos[u], pos[head[u]]);
+            u = kth[head[u]][0];
+        }
+        left_res += st->query(pos[lca_uv], pos[u]);
+    }, [&]{
+        // sum from v to lca_uv
+        while (head[v] != head[lca_uv])
+        {
+            right_res += st->query(pos[head[v]], pos[v]);
+            v = kth[head[v]][0];
+        }
+        right_res += st->query(pos[lca_uv] + 1, pos[v]);
+    });
+
+    return left_res + right_res;
 }
 
 // Update query for node u
