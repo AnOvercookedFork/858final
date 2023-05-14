@@ -22,15 +22,15 @@ using namespace std;
 const int N = 1e7;
 const int LOG = 27;
 
-vector<vector<int>> adj(N); // adjacency list representation of the tree
-vector<int> heavy(N, -1);   // stores the heavy child of each node u
-vector<int> head(N);        // stores the head of the chain to which node u belongs
-vector<int> pos(N);         // stores the position of node u in the segment tree array
-vector<int> depth(N);       // stores the depth of node u
-vector<int> sizes(N);       // stores the subtree size of u
-vector<int> values(N);      // stores the value of node u
-int kth[N][LOG];            // stores the kth ancestor of node u -- kth[u][0] is u's parent
-SegmentTree *st;            // segment tree built on DFS traversal of tree
+vector<int> adj[N]; // adjacency list representation of the tree
+int heavy[N];       // stores the heavy child of each node u
+int head[N];        // stores the head of the chain to which node u belongs
+int pos[N];         // stores the position of node u in the segment tree array
+int depth[N];       // stores the depth of node u
+int sizes[N];       // stores the subtree size of u
+int values[N];      // stores the value of node u
+int kth[N][LOG];    // stores the kth ancestor of node u -- kth[u][0] is u's parent
+SegmentTree *st;    // segment tree built on DFS traversal of tree
 
 int cur_pos; // used to assign positions to nodes in the segment tree array
 
@@ -39,6 +39,7 @@ int cur_pos; // used to assign positions to nodes in the segment tree array
 void dfs(int v)
 {
     sizes[v] = 1;
+    heavy[v] = -1;
     for (int u : adj[v])
     {
         if (u != kth[v][0])

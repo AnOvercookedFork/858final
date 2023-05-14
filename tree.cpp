@@ -15,14 +15,14 @@
 
 using namespace std;
 
-void add_child(vector<vector<int>> &adj, int parent, int child)
+void add_child(vector<int> *adj, int parent, int child)
 {
     adj[parent].push_back(child);
     adj[child].push_back(parent);
 }
 
 // Generates a tree with n nodes, k arity, and b balance
-void generate_tree(vector<vector<int>> &adj, int n, int k, int h)
+void generate_tree(vector<int> *adj, int n, int k, int h)
 {
     if (n == 0 || k == 0)
     {
@@ -52,7 +52,7 @@ void generate_tree(vector<vector<int>> &adj, int n, int k, int h)
 }
 
 // Fills in values vector with random values
-void generate_random_values(vector<int> &values, int n)
+void generate_random_values(int *values, int n)
 {
     int max_val = sqrt(__INT32_MAX__);
     for (int i = 0; i < n; i++)
@@ -87,7 +87,7 @@ void generate_random_values(vector<int> &values, int n)
   query_path(10, 6) = 24
   query_path(10, 9) = 23
 */
-void generate_simple_tree(vector<vector<int>> &adj, vector<int> &values)
+void generate_simple_tree(vector<int> *adj, int *values)
 {
     add_child(adj, 0, 1);
     add_child(adj, 0, 2);
@@ -107,12 +107,12 @@ void generate_simple_tree(vector<vector<int>> &adj, vector<int> &values)
 }
 
 // Prints the adjacency list for all nodes
-void print_tree(vector<vector<int>> &adj, int n)
+void print_tree(vector<int> *adj, int n)
 {
     for (int i = 0; i < n; i++)
     {
         cout << i << ": ";
-        for (int j = 0; j < (int) adj[i].size(); j++)
+        for (int j = 0; j < (int)adj[i].size(); j++)
         {
             cout << adj[i][j] << ",";
         }
