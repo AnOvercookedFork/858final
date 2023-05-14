@@ -9,19 +9,22 @@
 
 #include <iostream>
 #include <vector>
+#include <cmath>
 #include "serial_st.hpp"
+#include "tree.hpp"
 
 using namespace std;
 
 const int N = 100005;
 
-vector<int> adj[N];       // adjacency list representation of the tree
+vector<vector<int>> adj(N);       // adjacency list representation of the tree
 vector<int> heavy(N, -1); // stores the heavy child of each node u
 vector<int> head(N);      // stores the head of the chain to which node u belongs
 vector<int> pos(N);       // stores the position of node u in the segment tree array
 vector<int> parent(N);    // stores the parent of node u
 vector<int> depth(N);     // stores the depth of node u
 vector<int> sizes(N);     // stores the subtree size of u
+vector<int> values(N);    // stores the value of node u
 SegmentTree* st;          // segment tree built on DFS traversal of tree
 
 int cur_pos; // used to assign positions to nodes in the segment tree array
@@ -78,6 +81,19 @@ void decompose(int v, int h)
     // i.e. chains have been determined properly
 }
 
+// Builds a segment tree for entire tree based on node values (in DFS order)
+void build_st(int n)
+{
+    // dfs_values contains node values (in DFS order)
+    vector<int> dfs_values(n);
+    for (int i = 0; i < n; i++)
+    {
+        dfs_values[pos[i]] = values[i];
+    }
+
+    st = new SegmentTree(dfs_values);
+}
+
 // Performs range query on the path between nodes u and v, i.e. Sum(A, B) from slides
 // O(log^2 n)
 int query_path(int u, int v)
@@ -115,60 +131,82 @@ void update_node(int u, int val)
     st->update(pos[u], val); // Update the value at position pos[u] to val
 }
 
-// Driver code for building tree from cin
+
+
 int main()
 {
-    int n; // number of nodes
-    int q; // number of queries
-    cin >> n >> q;
+    // Generate tree and values
+    // int n = 10;
+    // generate_tree(adj, n, (int) log2(n), 2, 0.0);
+    // generate_random_values(values, n);
+    
+    int n = 11;
+    generate_simple_tree(adj, values);
 
-    // edges
-    for (int i = 0; i < n - 1; i++)
-    {
-        int u, v;
-        cin >> u >> v;
-        adj[u].push_back(v);
-        adj[v].push_back(u);
-    }
-
-    // run dfs from root node (index 0)
+    // Preprocessing
     dfs(0);
-
-    // run decompose from root node (index 0)
-    // start with root node's head being itself
     decompose(0, 0);
+    build_st(n);
 
-    // initialize values of nodes to be indices
-    vector<int> values(n);
-    for (int i = 0; i < n; i++)
-    {
-        values[i] = i;
-    }
+    // Queries
+    
+    cout << query_path(3, 5) << "\n";
+    cout << query_path(6, 5) << "\n";
+    cout << query_path(9, 4) << "\n";
+    cout << query_path(8, 2) << "\n";
+    cout << query_path(10, 6) << "\n";
+    cout << query_path(10, 9) << "\n";
 
-    // build a singular ST for whole tree, based on dfs array of nodes
-    // dfs_values contains node values in dfs order
-    vector<int> dfs_values(n);
-    for (int i = 0; i < n; i++)
-    {
-        dfs_values[pos[i]] = values[i];
-    }
-
-    st = new SegmentTree(dfs_values);
-
-    // run range and update queries q times
-    while (q--)
-    {
-        char type;
-        int u, v;
-        cin >> type >> u >> v;
-        if (type == 'Q')
-        {
-            cout << query_path(u, v) << endl;
-        }
-        else
-        {
-            update_node(u, v);
-        }
-    }
     return 0;
 }
+
+
+// Driver code for building tree from cin
+// int main()
+// {
+//     int n; // number of nodes
+//     int q; // number of queries
+//     cin >> n >> q;
+
+//     // edges
+//     for (int i = 0; i < n - 1; i++)
+//     {
+//         int u, v;
+//         cin >> u >> v;
+//         adj[u].push_back(v);
+//         adj[v].push_back(u);
+//     }
+
+//     // run dfs from root node (index 0)
+//     dfs(0);
+
+//     // run decompose from root node (index 0)
+//     // start with root node's head being itself
+//     decompose(0, 0);
+
+//     // initialize values of nodes to be indices
+//     vector<int> values(n);
+//     for (int i = 0; i < n; i++)
+//     {
+//         values[i] = i;
+//     }
+
+//     st = new SegmentTree(dfs_values);
+
+//     // run range and update queries q times
+//     while (q--)
+//     {
+//         char type;
+//         int u, v;
+//         cin >> type >> u >> v;
+//         if (type == 'Q')
+//         {
+//             cout << query_path(u, v) << endl;
+//         }
+//         else
+//         {
+//             update_node(u, v);
+//         }
+//     }
+//     return 0;
+// }
