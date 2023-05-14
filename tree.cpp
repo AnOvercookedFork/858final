@@ -71,10 +71,19 @@ void generate_random_values(vector<int> &values, int n)
   6 7 8 9  10
 
   Good for testing correctness:
+  query_path(0, 1) = 1
+  query_path(0, 2) = 2
+  query_path(1, 2) = 3
+  query_path(3, 2) = 6
+  query_path(3, 4) = 8
   query_path(3, 5) = 11
+  query_path(4, 5) = 12
+  query_path(6, 8) = 17
+  query_path(6, 7) = 16
   query_path(6, 5) = 17
   query_path(9, 4) = 13
   query_path(8, 2) = 14
+  query_path(6, 0) = 10
   query_path(10, 6) = 24
   query_path(10, 9) = 23
 */

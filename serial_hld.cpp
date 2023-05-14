@@ -19,15 +19,16 @@
 using namespace std;
 
 const int N = 100005;
+const int LOG = 27;
 
 vector<vector<int>> adj(N); // adjacency list representation of the tree
 vector<int> heavy(N, -1);   // stores the heavy child of each node u
 vector<int> head(N);        // stores the head of the chain to which node u belongs
 vector<int> pos(N);         // stores the position of node u in the segment tree array
-vector<int> parent(N);      // stores the parent of node u
 vector<int> depth(N);       // stores the depth of node u
 vector<int> sizes(N);       // stores the subtree size of u
 vector<int> values(N);      // stores the value of node u
+int kth[N][LOG];            // stores the kth ancestor of node u -- kth[u][0] is u's parent
 SegmentTree *st;            // segment tree built on DFS traversal of tree
 
 int cur_pos; // used to assign positions to nodes in the segment tree array
@@ -39,9 +40,9 @@ void dfs(int v)
     sizes[v] = 1;
     for (int u : adj[v])
     {
-        if (u != parent[v])
+        if (u != kth[v][0])
         {
-            parent[u] = v;
+            kth[u][0] = v;
             depth[u] = depth[v] + 1;
             dfs(u);
             sizes[v] += sizes[u];
@@ -73,7 +74,7 @@ void decompose(int v, int h)
     // Otherwise, for all other children:
     for (int u : adj[v])
     {
-        if (u != parent[v] && u != heavy[v]) // Ensure that u is a light child
+        if (u != kth[v][0] && u != heavy[v]) // Ensure that u is a light child
         {
             // Create a new chain for u
             decompose(u, u);
@@ -108,9 +109,39 @@ void preprocess(int n)
     build_st(n);
 }
 
-// Performs range query on the path between nodes u and v, i.e. Sum(A, B) from slides
-// O(log^2 n)
-int query_path(int u, int v)
+// Finds the LCA of nodes u and v
+// O(log n)
+int lca(int u, int v)
+{
+    if (depth[u] < depth[v])
+    {
+        swap(u, v);
+    }
+    int diff = depth[u] - depth[v];
+    for (int i = LOG - 1; i >= 0; i--)
+    {
+        if ((1 << i) & diff)
+        {
+            u = kth[u][i];
+        }
+    }
+    if (u == v)
+    {
+        return u;
+    }
+    for (int i = LOG - 1; i >= 0; i--)
+    {
+        if (kth[u][i] != kth[v][i])
+        {
+            u = kth[u][i];
+            v = kth[v][i];
+        }
+    }
+    return kth[u][0];
+}
+
+// "Old" way of doing query_path
+int query_path_old(int u, int v)
 {
     int res = 0; // accumulator
 
@@ -122,7 +153,7 @@ int query_path(int u, int v)
             swap(u, v); // Move up both u and v together to get to LCA
         }
         res += st->query(pos[head[u]], pos[u]); // Sum along current chain
-        u = parent[head[u]];                    // Update u to be parent of current chain
+        u = kth[head[u]][0];                    // Update u to be parent of current chain
     }
 
     // Ensures that u is the node with smaller depth
@@ -135,6 +166,33 @@ int query_path(int u, int v)
     // Sums nodes from LCA(u, v) -> v
     // this is not the same v we started out with!
     res += st->query(pos[u], pos[v]);
+    return res;
+}
+
+// "New" way of doing query_path, using binary lifting and LCA
+// This is the method from the the slides/readme
+// Verified to give the same results as query_path_old
+int query_path(int u, int v)
+{
+    int res = 0;
+    int lca_uv = lca(u, v);
+
+    // sum from u to lca_uv
+    while (head[u] != head[lca_uv])
+    {
+        res += st->query(pos[u], pos[head[u]]);
+        u = kth[head[u]][0];
+    }
+    res += st->query(pos[lca_uv], pos[u]);
+
+    // sum from v to lca_uv
+    while (head[v] != head[lca_uv])
+    {
+        res += st->query(pos[head[v]], pos[v]);
+        v = kth[head[v]][0];
+    }
+    res += st->query(pos[lca_uv] + 1, pos[v]);
+
     return res;
 }
 
@@ -189,10 +247,19 @@ int main(int argc, char *argv[])
         preprocess(n);
 
         // Queries
+        cout << query_path(0, 1) << "\n";
+        cout << query_path(0, 2) << "\n";
+        cout << query_path(1, 2) << "\n";
+        cout << query_path(3, 2) << "\n";
+        cout << query_path(3, 4) << "\n";
         cout << query_path(3, 5) << "\n";
+        cout << query_path(4, 5) << "\n";
+        cout << query_path(6, 8) << "\n";
+        cout << query_path(6, 7) << "\n";
         cout << query_path(6, 5) << "\n";
         cout << query_path(9, 4) << "\n";
         cout << query_path(8, 2) << "\n";
+        cout << query_path(6, 0) << "\n";
         cout << query_path(10, 6) << "\n";
         cout << query_path(10, 9) << "\n";
         return 0;
@@ -213,12 +280,21 @@ int main(int argc, char *argv[])
     preprocess(n);
 
     // Queries
-    cout << query_path(3, 5) << "\n";
-    cout << query_path(6, 5) << "\n";
-    cout << query_path(9, 4) << "\n";
-    cout << query_path(8, 2) << "\n";
-    cout << query_path(10, 6) << "\n";
-    cout << query_path(10, 9) << "\n";
+    cout << query_path_old(0, 1) << "\n";
+    cout << query_path_old(0, 2) << "\n";
+    cout << query_path_old(1, 2) << "\n";
+    cout << query_path_old(3, 2) << "\n";
+    cout << query_path_old(3, 4) << "\n";
+    cout << query_path_old(3, 5) << "\n";
+    cout << query_path_old(4, 5) << "\n";
+    cout << query_path_old(6, 8) << "\n";
+    cout << query_path_old(6, 7) << "\n";
+    cout << query_path_old(6, 5) << "\n";
+    cout << query_path_old(9, 4) << "\n";
+    cout << query_path_old(8, 2) << "\n";
+    cout << query_path_old(6, 0) << "\n";
+    cout << query_path_old(10, 6) << "\n";
+    cout << query_path_old(10, 9) << "\n";
 
     return 0;
 }
