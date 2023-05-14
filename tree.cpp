@@ -21,8 +21,8 @@ void add_child(vector<vector<int>> &adj, int parent, int child)
     adj[child].push_back(parent);
 }
 
-// Generates a tree with n nodes, h height, k arity, and b balance
-void generate_tree(vector<vector<int>> &adj, int n, int h, int k, double b)
+// Generates a tree with n nodes, k arity, and b balance
+void generate_tree(vector<vector<int>> &adj, int n, int k, int h)
 {
     if (n == 0 || k == 0)
     {

@@ -172,9 +172,6 @@ int main(int argc, char *argv[])
         case 'h':
             h = atoi(optarg);
             break;
-        case 'b':
-            b = atof(optarg);
-            break;
         case 'd':
             debug = true;
             break;
@@ -202,7 +199,7 @@ int main(int argc, char *argv[])
     }
 
     // Otherwise, generate tree using command line args
-    generate_tree(adj, n, h, k, b);
+    generate_tree(adj, n, k, h);
 
     // Print tree if debug
     if (debug)
