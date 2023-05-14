@@ -20,7 +20,7 @@
 
 using namespace std;
 
-const int N = 1e8;
+const int N = 1e7;
 const int LOG = 27;
 
 vector<int> *adj; // adjacency list representation of the tree
@@ -49,6 +49,27 @@ void alloc_all()
     {
         kth[i] = (int *)malloc(LOG * sizeof(int)); // allocate memory for each row of kth
     }
+}
+
+void free_all()
+{
+    for (int i = 0; i < N; i++)
+    {
+        delete &adj[i];
+    }
+    free(adj);
+    free(heavy);
+    free(head);
+    free(pos);
+    free(depth);
+    free(sizes);
+    free(values);
+
+    for (int i = 0; i < N; i++)
+    {
+        free(kth[i]);
+    }
+    free(kth);
 }
 
 // Computes parent, depth, subtree size, and heavy child of each node using DFS
@@ -269,6 +290,7 @@ void update_node(int u, int val)
 int main(int argc, char *argv[])
 {
     alloc_all();
+    parlay::timer t("timer", false);
 
     // Parse command line arguments
     int opt;
@@ -339,16 +361,29 @@ int main(int argc, char *argv[])
     srand(0);
     generate_random_values(values, n);
 
-    // Preprocess
-    preprocess(n);
-
-    // Queries
-    for (int i = 0; i < 1000000; i++)
+    int num_rounds = 5;
+    
+    for (int i = 0; i < num_rounds; i++)
     {
-        int u = rand() % n;
-        int v = rand() % n;
+        // Preprocess
+        t.start();
+
+        preprocess(n);
+        
+        t.stop();
+        cout << "Preprocess time: " << t.total_time() << "\n";
+        
+        // Query
+        t.reset();
+        t.start();
+        
+        int u = (n - 1) / 2;
+        int v = n - 1;
+
         query_path(u, v);
-        // cout << query_path(u, v) << "\n";
+
+        t.stop();
+        cout << "Query time: " << t.total_time() << "\n";
     }
 
     return 0;
