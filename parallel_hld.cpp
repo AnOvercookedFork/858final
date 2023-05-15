@@ -12,6 +12,8 @@
 #include <cmath>
 #include <cstring>
 #include "getopt.h"
+#include <unordered_map>
+#include <map>
 
 #include "serial_st.hpp"
 #include "tree.hpp"
@@ -37,6 +39,7 @@ int **kth;        // stores the kth ancestor of node u -- kth[u][0] is u's paren
 
 // Extra stuff for parallel
 // vector<pair<int, int>> edges;
+// int *degrees      // stores the degree of node u
 
 SegmentTree *st; // segment tree built on DFS traversal of tree
 int cur_pos;     // used to assign positions to nodes in the segment tree array
@@ -133,34 +136,61 @@ struct Edge {
     int u;
     int v;
     Edge* next;
-
-    // Constructor with parameters
     Edge(int u, int v, Edge* next = nullptr) : u(u), v(v), next(next) {}
 };
 
+
 void euler_tour(int n)
 {
+    // auto nested = parlay::tabulate<int>(n, [&](int v){
+    //     int deg = adj[v].size();
+    //     Edge *u_edges = (Edge *)malloc(deg * sizeof(Edge));
+        
+    //     parallel_for(0, deg, [&](int i){
+    //         u_edges[i] = Edge(adj[v][i], v);
+    //         u_edges[i].
+
+    //         u_edges[i*2 + 1] = Edge(v, adj[v][i % deg]);
+
+    //         u_edges[i*2].next = &u_edges[i*2 + 1];
+    //     });
+    //     return u_edges;
+    // });
+
+
+
+    // auto seq = parlay::sequence(adj, adj + n);
+
+    // auto nested = parlay::map(adj, n, [&]{
+    //     return "asdf";
+    // });
+
+    // auto nested = parlay::map()
+
+    // Edge *edges = (Edge *)malloc(n * sizeof(Edge));
 
     // IDEA: find succ in nested
     // 1. Construct a list of edges
     // NOTE: tabulate vs map??
 
-    Edge *edges = (Edge *)malloc(n * sizeof(Edge));
+    // Edge *edges = (Edge *)malloc(n * sizeof(Edge));
 
-    parlay::parallel_for(0, n, [&](int v){
-        int deg = adj[v].size();
+    // parlay::parallel_for(0, n, [&](int v){
+    //     int deg = adj[v].size();
 
-        parlay::parallel_for(0, deg, [&](int i){
-            int u = adj[v][i];
-            int w = adj[v][(i + 1) % deg];
+    //     parlay::parallel_for(0, deg, [&](int i){
+    //         int u = adj[v][i];
+    //         int w = adj[v][(i + 1) % deg];
 
-            auto edge = Edge(u, v);
-            auto next = new Edge(v, w);
-            edge.next = next;
+    //         auto edge = Edge(u, v);
+    //         auto next = new Edge(v, w);
+    //         edge.next = next;
 
-            edges[i] = edge;
-        });
-    });
+    //         edges[i] = edge;
+    //     });
+    // });
+
+
 
     // auto nested = parlay::tabulate(n, [&](int v){
     //     for (int i = 0; i < adj[v].size(); i++)
