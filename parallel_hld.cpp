@@ -38,8 +38,8 @@ int *values;      // stores the value of node u
 int **kth;        // stores the kth ancestor of node u -- kth[u][0] is u's parent
 
 // Extra stuff for parallel
-// vector<pair<int, int>> edges;
-// int *degrees      // stores the degree of node u
+vector<pair<int, int>> edges;
+bool *visited;
 
 SegmentTree *st; // segment tree built on DFS traversal of tree
 int cur_pos;     // used to assign positions to nodes in the segment tree array
@@ -119,29 +119,81 @@ void decompose(int v, int h)
     // i.e. chains have been determined properly
 }
 
+
+
+// Performs heavy-light decomposition greedily
+// Assumes we have parent, depth, subtree size, and heavy child of each node
+// Determines where the chains should be (assigns "head" for each node)
+// O(n) time
+void par_decompose(int v, int h)
+{
+    head[v] = h;        // make the current node's chain whatever was passed from parent
+    pos[v] = cur_pos++; // assign position in segment tree array
+
+    // If v has a heavy child, then do special case
+    if (heavy[v] != -1)
+    {
+        // If v has a heavy child, continue the current chain by passing in h
+        // h is the head of the current chain
+        par_decompose(heavy[v], h);
+    }
+
+    // Otherwise, for all other children:
+    parlay::parallel_for(0, adj[v].size(), [&](int i){
+        int u = adj[v][i];
+
+        if (u != kth[v][0] && u != heavy[v]) // Ensure that u is a light child
+        {
+            // Create a new chain for u
+            par_decompose(u, u);
+        }
+    });
+
+    // Now, we have set "head" for each node properly
+    // i.e. chains have been determined properly
+}
+
+
 // Builds a segment tree for entire tree based on node values (in DFS order)
 void build_st(int n)
 {
     // dfs_values contains node values (in DFS order)
     vector<int> dfs_values(n);
-    for (int i = 0; i < n; i++)
-    {
+    parallel_for(0, n, [&](int i){
         dfs_values[pos[i]] = values[i];
-    }
+    }, 10000);
 
     st = new SegmentTree(dfs_values);
 }
 
-struct Edge {
-    int u;
-    int v;
-    Edge* next;
-    Edge(int u, int v, Edge* next = nullptr) : u(u), v(v), next(next) {}
-};
+void par_dfs(int v)
+{
+    sizes[v] = 1;
+    heavy[v] = -1;
 
+    parallel_for(0, adj[v].size(), [&](int i){
+        int u = adj[v][i];
+        if (u != kth[v][0])
+        {
+            kth[u][0] = v;
+            for (int i = 1; i < log_n; i++)
+            {
+                kth[u][i] = kth[kth[u][i - 1]][i - 1];
+            }
+            depth[u] = depth[v] + 1;
+            par_dfs(u);
+            sizes[v] += sizes[u];
+            if (heavy[v] == -1 || sizes[u] > sizes[heavy[v]])
+            {
+                heavy[v] = u;
+            }
+        }
+    }, 100000);
+}
 
 void euler_tour(int n)
 {
+    cout << n << endl;
     // auto nested = parlay::tabulate<int>(n, [&](int v){
     //     int deg = adj[v].size();
     //     Edge *u_edges = (Edge *)malloc(deg * sizeof(Edge));
@@ -261,16 +313,9 @@ void euler_tour(int n)
 void parallel_preprocess(int n)
 {
     cur_pos = 0;
-    euler_tour(n);
-
-    // for (pair<int, int> edge : edges)
-    // {
-    //     cout << "(" << edge.first << ", " << edge.second << ")" << "\n";
-    // }
-
-    // dfs(0);
-    // decompose(0, 0);
-    // build_st(n);
+    dfs(0);
+    decompose(0, 0);
+    build_st(n);
 }
 
 // Finds the LCA of nodes u and v
@@ -397,7 +442,7 @@ int main(int argc, char *argv[])
     if (debug)
         print_tree(adj, n);
 
-    int num_rounds = 1;
+    int num_rounds = 5;
 
     // Preprocess
     double total_time = 0;
@@ -413,8 +458,6 @@ int main(int argc, char *argv[])
 
     cout << "Average preprocess time: " << total_time / num_rounds << endl;
     total_time = 0;
-
-    return 0;
 
     // Query
     for (int i = 0; i < num_rounds; i++)
