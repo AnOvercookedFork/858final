@@ -17,8 +17,11 @@
 #include "tree.hpp"
 #include "parallel.h"
 #include "get_time.h"
+#include "primitives.h"
+#include "sequence.h"
 
 using namespace std;
+using namespace parlay;
 
 int n;
 int log_n;
@@ -33,7 +36,7 @@ int *values;      // stores the value of node u
 int **kth;        // stores the kth ancestor of node u -- kth[u][0] is u's parent
 
 // Extra stuff for parallel
-vector<pair<int, int>> et;
+// vector<pair<int, int>> edges;
 
 SegmentTree *st; // segment tree built on DFS traversal of tree
 int cur_pos;     // used to assign positions to nodes in the segment tree array
@@ -126,19 +129,98 @@ void build_st(int n)
     st = new SegmentTree(dfs_values);
 }
 
-void euler_tour(int u)
+struct Edge {
+    int u;
+    int v;
+    Edge* next;
+
+    // Constructor with parameters
+    Edge(int u, int v, Edge* next = nullptr) : u(u), v(v), next(next) {}
+};
+
+void euler_tour(int n)
 {
-    for (int v : adj[u])
-    {
-        if (v != kth[u][0])
-        {
-            et.push_back(make_pair(u, v));
-            kth[v][0] = u;              // assign parent
-            depth[v] = depth[u] + 1;    // assign depth
-            euler_tour(v);
-            et.push_back(make_pair(v, u));
-        }
-    }
+
+    // IDEA: find succ in nested
+    // 1. Construct a list of edges
+    // NOTE: tabulate vs map??
+
+    Edge *edges = (Edge *)malloc(n * sizeof(Edge));
+
+    parlay::parallel_for(0, n, [&](int v){
+        int deg = adj[v].size();
+
+        parlay::parallel_for(0, deg, [&](int i){
+            int u = adj[v][i];
+            int w = adj[v][(i + 1) % deg];
+
+            auto edge = Edge(u, v);
+            auto next = new Edge(v, w);
+            edge.next = next;
+
+            edges[i] = edge;
+        });
+    });
+
+    // auto nested = parlay::tabulate(n, [&](int v){
+    //     for (int i = 0; i < adj[v].size(); i++)
+    //     {
+    //         auto u_i = adj[i];
+    //         auto u_i_plus_one = adj[(i + 1) % adj[v].size()];
+
+    //         edges.push_back(make_pair(u_i, v));
+    //         succs.push_back(make_pair(v, u_i_plus_one));
+    //     }
+        
+    //     return edges;
+    // });
+
+    // auto edges = parlay::flatten(nested);
+    // parlay::sort_inplace(edges);
+
+    
+
+    // 2. Find successor of each edge
+    // auto succ = vector<pair<int, int>>(n);
+
+
+
+    // // 2. Find successor of each edge
+    // auto succ = vector<pair<int, int>>(n);
+    // parlay::parallel_for(0, n, [&](int i){
+    //     auto edge = edges[i];
+    //     return edge;
+    // });
+
+
+
+    // 2. 
+
+    // for (auto edge : flattened)
+    //     cout << edge.first << ", " << edge.second << endl;
+
+    // 2. 
+
+    // cout << adj.size() << "\n";
+
+
+    // parlay::sort_inplace(edges);
+    // parlay::sort_inplace(edges, [&](pair<int, int> a, pair<int, int> b){ return a.first < b.first; });
+
+    // Sort the edge list lexicographically
+    
+
+    // for (int v : adj[u])
+    // {
+    //     if (v != kth[u][0])
+    //     {
+    //         et.push_back(make_pair(u, v));
+    //         kth[v][0] = u;              // assign parent
+    //         depth[v] = depth[u] + 1;    // assign depth
+    //         euler_tour(v);
+    //         et.push_back(make_pair(v, u));
+    //     }
+    // }
 }
 
 // Do parallel preprocessing on the tree
@@ -149,12 +231,12 @@ void euler_tour(int u)
 void parallel_preprocess(int n)
 {
     cur_pos = 0;
-    euler_tour(0);
+    euler_tour(n);
 
-    for (pair<int, int> edge : et)
-    {
-        cout << "(" << edge.first << ", " << edge.second << ")" << "\n";
-    }
+    // for (pair<int, int> edge : edges)
+    // {
+    //     cout << "(" << edge.first << ", " << edge.second << ")" << "\n";
+    // }
 
     // dfs(0);
     // decompose(0, 0);
@@ -292,7 +374,7 @@ int main(int argc, char *argv[])
 
     for (int i = 0; i < num_rounds; i++)
     {
-        parlay::timer t;
+        parlay::internal::timer t;
         parallel_preprocess(n);
         t.stop();
         cout << "Round " << i << " preprocess time: " << t.total_time() << endl;
@@ -307,7 +389,7 @@ int main(int argc, char *argv[])
     // Query
     for (int i = 0; i < num_rounds; i++)
     {
-        parlay::timer t;
+        parlay::internal::timer t;
         if (simple)
         {
             cout << query_path(0, 1) << "\n";

@@ -3,3 +3,4 @@ ignore
 serial_hld
 serial_st_test
 parlay_test
+parallel_hld

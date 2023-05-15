@@ -328,7 +328,7 @@ int main(int argc, char *argv[])
 
     for (int i = 0; i < num_rounds; i++)
     {
-        parlay::timer t;
+        parlay::internal::timer t;
         preprocess(n);
         t.stop();
         cout << "Round " << i << " preprocess time: " << t.total_time() << endl;
@@ -341,7 +341,7 @@ int main(int argc, char *argv[])
     // Query
     for (int i = 0; i < num_rounds; i++)
     {
-        parlay::timer t;
+        parlay::internal::timer t;
         if (simple)
         {
             cout << query_path(0, 1) << "\n";

@@ -29,16 +29,16 @@ CPPFLAGS += -O3 -mcx16 -march=native
 endif
 
 serial_hld: serial_hld.cpp serial_st.cpp tree.cpp
-	$(CC) $(CPPFLAGS) -o $@ $^
+	$(CC) $(CPPFLAGS) $(LDFLAGS) $(INCLUDES) -o $@ $^
 
 serial_st_test: serial_st_test.cpp serial_st.cpp
-	$(CC) $(CPPFLAGS) -o $@ $^
+	$(CC) $(CPPFLAGS) $(LDFLAGS) $(INCLUDES) -o $@ $^
 
 parlay_test: parlay_test.cpp
 	$(CC) $(CPPFLAGS) $(LDFLAGS) $(INCLUDES) -o $@ $^
 
 parallel_hld: parallel_hld.cpp serial_st.cpp tree.cpp
-	$(CC) $(CPPFLAGS) -o $@ $^	
+	$(CC) $(CPPFLAGS) $(LDFLAGS) $(INCLUDES) -o $@ $^	
 
 clean:
 	rm -rf serial_hld serial_st_test parlay_test parallel_hld
