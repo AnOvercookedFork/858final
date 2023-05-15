@@ -233,7 +233,7 @@ int query_path(int u, int v)
         res += st->query(pos[u], pos[head[u]]);
         u = kth[head[u]][0];
     }
-    res += st->query(pos[lca_uv], pos[u]);
+    res += st->query(pos[u], pos[lca_uv]);
 
     // sum from v to lca_uv
     while (head[v] != head[lca_uv])
@@ -241,8 +241,7 @@ int query_path(int u, int v)
         res += st->query(pos[head[v]], pos[v]);
         v = kth[head[v]][0];
     }
-    res += st->query(pos[lca_uv] + 1, pos[v]);
-
+    res += st->query(pos[v], pos[lca_uv]) - values[lca_uv];
     return res;
 }
 

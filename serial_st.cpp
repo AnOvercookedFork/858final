@@ -40,6 +40,8 @@ void SegmentTree::build(const std::vector<int> &arr, int v, int tl, int tr)
 // Calls recursive query with starting arguments
 int SegmentTree::query(int l, int r)
 {
+    if (l > r)
+        swap(l, r);
     return query(1, 0, n - 1, l, r);
 }
 
