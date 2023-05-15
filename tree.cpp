@@ -68,7 +68,7 @@ void generate_random_values(int *values, int n)
      / \   \
     3   4   5
    /|\  | \
-  6 7 8 9  10
+  6 7 8 9 10
 
   Good for testing correctness:
   query_path(0, 1) = 1

@@ -35,5 +35,8 @@ serial_st_test: serial_st_test.cpp serial_st.cpp
 parlay_test: parlay_test.cpp
 	$(CC) $(CPPFLAGS) -o $@ $^
 
+parallel_hld: parallel_hld.cpp serial_st.cpp tree.cpp
+	$(CC) $(CPPFLAGS) -o $@ $^	
+
 clean:
 	rm -rf serial hld st_test parlay_test
