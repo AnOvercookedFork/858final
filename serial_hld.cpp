@@ -148,6 +148,7 @@ void build_st(int n)
 // 3. Build a segment tree on node values
 void preprocess(int n)
 {
+    cur_pos = 0;
     dfs(0);
     decompose(0, 0);
     build_st(n);
@@ -289,8 +290,8 @@ void update_node(int u, int val)
 // Driver code
 int main(int argc, char *argv[])
 {
+    srand(0);
     alloc_all();
-    parlay::timer t("timer", false);
 
     // Parse command line arguments
     int opt;
@@ -321,70 +322,77 @@ int main(int argc, char *argv[])
         }
     }
 
-    // If "-s" flag is specified, then generate a "simple" tree
+    // Generate tree
     if (simple)
     {
-        // Generate tree and values
-        int n = 11;
+        n = 11;
         generate_simple_tree(adj, values);
-
-        // Preprocessing
-        preprocess(n);
-
-        // Queries
-        cout << query_path(0, 1) << "\n";
-        cout << query_path(0, 2) << "\n";
-        cout << query_path(1, 2) << "\n";
-        cout << query_path(3, 2) << "\n";
-        cout << query_path(3, 4) << "\n";
-        cout << query_path(3, 5) << "\n";
-        cout << query_path(4, 5) << "\n";
-        cout << query_path(6, 8) << "\n";
-        cout << query_path(6, 7) << "\n";
-        cout << query_path(6, 5) << "\n";
-        cout << query_path(9, 4) << "\n";
-        cout << query_path(8, 2) << "\n";
-        cout << query_path(6, 0) << "\n";
-        cout << query_path(10, 6) << "\n";
-        cout << query_path(10, 9) << "\n";
-        return 0;
+    }
+    else
+    {
+        generate_tree(adj, n, k, h);
+        generate_random_values(values, n);
     }
 
-    // Otherwise, generate tree using command line args
-    generate_tree(adj, n, k, h);
-
-    // Print tree if debug
+    // Print if debug
     if (debug)
         print_tree(adj, n);
 
-    // Generate random values
-    srand(0);
-    generate_random_values(values, n);
-
     int num_rounds = 5;
-    
+
+    // Preprocess
+    double total_time = 0;
+
     for (int i = 0; i < num_rounds; i++)
     {
-        // Preprocess
-        t.start();
-
+        parlay::timer t;
         preprocess(n);
-        
         t.stop();
-        cout << "Preprocess time: " << t.total_time() << "\n";
-        
-        // Query
-        t.reset();
-        t.start();
-        
-        int u = (n - 1) / 2;
-        int v = n - 1;
-
-        query_path(u, v);
-
-        t.stop();
-        cout << "Query time: " << t.total_time() << "\n";
+        cout << "Round " << i << " preprocess time: " << t.total_time() << endl;
+        total_time += t.total_time();
     }
+
+    cout << "Average preprocess time: " << total_time / num_rounds << endl;
+    total_time = 0;
+
+    // Query
+    for (int i = 0; i < num_rounds; i++)
+    {
+        parlay::timer t;
+        if (simple)
+        {
+            cout << query_path(0, 1) << "\n";
+            cout << query_path(0, 2) << "\n";
+            cout << query_path(1, 2) << "\n";
+            cout << query_path(3, 2) << "\n";
+            cout << query_path(3, 4) << "\n";
+            cout << query_path(3, 5) << "\n";
+            cout << query_path(4, 5) << "\n";
+            cout << query_path(6, 8) << "\n";
+            cout << query_path(6, 7) << "\n";
+            cout << query_path(6, 5) << "\n";
+            cout << query_path(9, 4) << "\n";
+            cout << query_path(8, 2) << "\n";
+            cout << query_path(6, 0) << "\n";
+            cout << query_path(10, 6) << "\n";
+            cout << query_path(10, 9) << "\n";
+        }
+        else
+        {
+            int u = (n - 1) / 2;
+            int v = n - 1;
+
+            int ans = query_path(u, v);
+
+            if (i == 0)
+                std::cout << "Total sum: " << ans << endl;
+        }
+        t.stop();
+        cout << "Round " << i << " query time: " << t.total_time() << endl;
+        total_time += t.total_time();
+    }
+
+    cout << "Average query time: " << total_time / num_rounds << endl;
 
     return 0;
 }
