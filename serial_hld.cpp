@@ -20,8 +20,8 @@
 
 using namespace std;
 
-const int N = 1e7;
-const int LOG = 27;
+int n;
+int log_n;
 
 vector<int> *adj; // adjacency list representation of the tree
 int *heavy;       // stores the heavy child of each node u
@@ -37,40 +37,21 @@ int cur_pos;     // used to assign positions to nodes in the segment tree array
 
 void alloc_all()
 {
-    adj = (vector<int> *)malloc(N * sizeof(vector<int>)); // allocate memory for adj
-    heavy = (int *)malloc(N * sizeof(int));               // allocate memory for heavy
-    head = (int *)malloc(N * sizeof(int));                // allocate memory for head
-    pos = (int *)malloc(N * sizeof(int));                 // allocate memory for pos
-    depth = (int *)malloc(N * sizeof(int));               // allocate memory for depth
-    sizes = (int *)malloc(N * sizeof(int));               // allocate memory for sizes
-    values = (int *)malloc(N * sizeof(int));              // allocate memory for values
-    kth = (int **)malloc(N * sizeof(int *));              // allocate memory for kth
-    for (int i = 0; i < N; i++)
+    log_n = (int) log2(n);
+    adj = (vector<int> *)malloc(n * sizeof(vector<int>)); // allocate memory for adj
+    heavy = (int *)malloc(n * sizeof(int));               // allocate memory for heavy
+    head = (int *)malloc(n * sizeof(int));                // allocate memory for head
+    pos = (int *)malloc(n * sizeof(int));                 // allocate memory for pos
+    depth = (int *)malloc(n * sizeof(int));               // allocate memory for depth
+    sizes = (int *)malloc(n * sizeof(int));               // allocate memory for sizes
+    values = (int *)malloc(n * sizeof(int));              // allocate memory for values
+    kth = (int **)malloc(n * sizeof(int *));              // allocate memory for kth
+    for (int i = 0; i < n; i++)
     {
-        kth[i] = (int *)malloc(LOG * sizeof(int)); // allocate memory for each row of kth
+        kth[i] = (int *)malloc(log_n * sizeof(int)); // allocate memory for each row of kth
     }
 }
 
-void free_all()
-{
-    for (int i = 0; i < N; i++)
-    {
-        delete &adj[i];
-    }
-    free(adj);
-    free(heavy);
-    free(head);
-    free(pos);
-    free(depth);
-    free(sizes);
-    free(values);
-
-    for (int i = 0; i < N; i++)
-    {
-        free(kth[i]);
-    }
-    free(kth);
-}
 
 // Computes parent, depth, subtree size, and heavy child of each node using DFS
 // O(n) time
@@ -83,7 +64,7 @@ void dfs(int v)
         if (u != kth[v][0])
         {
             kth[u][0] = v;
-            for (int i = 1; i < LOG; i++)
+            for (int i = 1; i < log_n; i++)
             {
                 kth[u][i] = kth[kth[u][i - 1]][i - 1];
             }
@@ -163,7 +144,7 @@ int lca(int u, int v)
         swap(u, v);
     }
     int diff = depth[u] - depth[v];
-    for (int i = LOG - 1; i >= 0; i--)
+    for (int i = log_n - 1; i >= 0; i--)
     {
         if ((1 << i) & diff)
         {
@@ -174,7 +155,7 @@ int lca(int u, int v)
     {
         return u;
     }
-    for (int i = LOG - 1; i >= 0; i--)
+    for (int i = log_n - 1; i >= 0; i--)
     {
         if (kth[u][i] != kth[v][i])
         {
@@ -290,7 +271,7 @@ void update_node(int u, int val)
 int main(int argc, char *argv[])
 {
     srand(0);
-    alloc_all();
+
 
     // Parse command line arguments
     int opt;
@@ -321,12 +302,15 @@ int main(int argc, char *argv[])
         }
     }
 
+    if (simple)
+        n = 11;
+
+    ::n = n;
+    alloc_all();
+
     // Generate tree
     if (simple)
-    {
-        n = 11;
         generate_simple_tree(adj, values);
-    }
     else
     {
         generate_tree(adj, n, k, h);
