@@ -4,12 +4,13 @@
 
 ```
 make serial_hld
+make parallel_hld
 
-./serial_hld -n 7 -h 3 -k 2 -b 0.0 -d
+./serial_hld -n 1000000 -h 20
+
+./parallel_hld -n 10000000 -h 24
 
 ./serial_hld -s -d
-
-./serial_hld -n 100000 -h 10 -k 3 -b 0.7
 ```
 
 ## Problem
